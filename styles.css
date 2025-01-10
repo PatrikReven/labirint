@@ -1,0 +1,106 @@
+/* Reset default browser styles for consistency */
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #1db954; /* Spotify green */
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.container {
+    text-align: center;
+    max-width: 90%;
+}
+
+h1 {
+    margin-bottom: 10px;
+    font-size: 3em;
+    color: #ffffff;
+}
+
+.instructions {
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    color: #f0f0f0;
+}
+
+.maze-wrapper {
+    display: inline-block;
+    border: 5px solid #ffffff;
+    border-radius: 10px;
+    background: #000000;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+svg {
+    width: 100%;
+    height: auto;
+    background: #ffffff;
+    border-radius: 5px;
+}
+
+/* Maze Paths Styling */
+.maze-paths line {
+    stroke: #000000;
+}
+
+/* Solution Path Animation */
+#solution-path {
+    stroke-dasharray: 0; /* Will be set dynamically via JavaScript */
+    stroke-dashoffset: 0; /* Will be set dynamically via JavaScript */
+    transition: stroke-dashoffset 2s linear;
+}
+
+/* Button Styling */
+button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    font-size: 1.2em;
+    border: none;
+    background: #ffffff;
+    color: #1db954;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s, transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+    background: #1db954;
+    color: #ffffff;
+    transform: scale(1.05);
+}
+
+button:disabled {
+    background: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 2em;
+    }
+
+    .instructions {
+        font-size: 1em;
+    }
+
+    button {
+        font-size: 1em;
+        padding: 10px 20px;
+    }
+}
