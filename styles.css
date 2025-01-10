@@ -1,6 +1,4 @@
 /* Reset default browser styles for consistency */
-
-
 * {
     margin: 0;
     padding: 0;
@@ -8,19 +6,20 @@
 }
 
 body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     background: #1db954; /* Spotify green */
     color: #ffffff;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100vh;
+    transition: background 0.5s, color 0.5s;
 }
 
 .container {
     text-align: center;
-    max-width: 90%;
+    max-width: 95%;
+    padding: 20px;
 }
 
 h1 {
@@ -33,10 +32,30 @@ h1 {
     margin-bottom: 20px;
     font-size: 1.2em;
     color: #f0f0f0;
+    transition: opacity 0.5s;
+}
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.buttons button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .maze-wrapper {
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* Adjust to parent width */
+     /* Increased maximum width */
+    aspect-ratio: 1 / 1; /* Maintain square ratio */
     border: 5px solid #ffffff;
     border-radius: 10px;
     background: #000000;
@@ -44,28 +63,35 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-svg {
-    width: 100%;
-    height: auto;
+svg#maze {
+    width: 1000px;
+    height: 1000px;
     background: #ffffff;
     border-radius: 5px;
+}
+
+svg, g{
+    display: absolute;
+    width: 10000px;
+    height: 10000px;
 }
 
 /* Maze Paths Styling */
 .maze-paths line {
     stroke: #000000;
+    stroke-width: 2;
 }
 
-/* Solution Path Animation */
+/* Solution Path Styling */
 #solution-path {
-    stroke-dasharray: 0; /* Will be set dynamically via JavaScript */
-    stroke-dashoffset: 0; /* Will be set dynamically via JavaScript */
+    stroke-dasharray: 0; /* Set dynamically via JavaScript */
+    stroke-dashoffset: 0; /* Set dynamically via JavaScript */
     transition: stroke-dashoffset 2s linear;
+    stroke-width: 4; /* Increased for better visibility */
 }
 
 /* Button Styling */
 button {
-    margin-top: 20px;
     padding: 12px 24px;
     font-size: 1.2em;
     border: none;
@@ -75,6 +101,12 @@ button {
     cursor: pointer;
     transition: background 0.3s, color 0.3s, transform 0.2s;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+}
+
+button i {
+    font-size: 1em;
 }
 
 button:hover {
@@ -89,10 +121,77 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* Spinner Styling */
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #ffffff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Theme Styling */
+body.dark-theme {
+    background: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-theme .maze-wrapper {
+    background: #1e1e1e;
+    border-color: #e0e0e0;
+}
+
+body.dark-theme svg#maze {
+    background: #1e1e1e;
+}
+
+body.dark-theme .maze-paths line {
+    stroke: #e0e0e0;
+}
+
+body.dark-theme #solution-path {
+    stroke: #ff4081; /* Brighter color for dark theme */
+}
+
+body.dark-theme button {
+    background: #333333;
+    color: #1db954;
+}
+
+body.dark-theme button:hover {
+    background: #1db954;
+    color: #ffffff;
+}
+
+body.dark-theme .instructions {
+    color: #cccccc;
+}
+
 /* Responsive Design */
-@media (max-width: 600px) {
+@media (max-width: 1000px) {
+    .maze-wrapper {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 800px) {
     h1 {
-        font-size: 2em;
+        font-size: 2.5em;
     }
 
     .instructions {
@@ -103,4 +202,29 @@ button:disabled {
         font-size: 1em;
         padding: 10px 20px;
     }
+}
+
+@media (max-width: 500px) {
+    h1 {
+        font-size: 2em;
+    }
+
+    .instructions {
+        font-size: 0.9em;
+    }
+
+    button {
+        font-size: 0.9em;
+        padding: 8px 16px;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+}
+
+/* Accessibility */
+button:focus {
+    outline: 2px solid #1db954;
+    outline-offset: 2px;
 }
