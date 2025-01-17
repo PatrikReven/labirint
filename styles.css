@@ -5,9 +5,10 @@
     box-sizing: border-box;
 }
 
+/* A radial gradient for a more polished look. */
 body {
     font-family: 'Roboto', sans-serif;
-    background: #1db954; /* Spotify green */
+    background: radial-gradient(circle at center, #1db954 0%, #0d6a34 100%);
     color: #ffffff;
     display: flex;
     justify-content: center;
@@ -20,19 +21,41 @@ body {
     text-align: center;
     max-width: 95%;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Subtle fade-in animation */
+    animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 h1 {
     margin-bottom: 10px;
     font-size: 3em;
     color: #ffffff;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+    transition: transform 0.3s;
+}
+h1:hover {
+    transform: scale(1.02);
 }
 
-.instructions {
-    margin-bottom: 20px;
+.timer-display {
     font-size: 1.2em;
-    color: #f0f0f0;
-    transition: opacity 0.5s;
+    margin: 10px 0;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    transition: background 0.3s;
+}
+.timer-display:hover {
+    background: rgba(0, 0, 0, 0.35);
 }
 
 .buttons {
@@ -49,31 +72,28 @@ h1 {
     gap: 8px;
 }
 
+/* Maze wrapper with a fixed 800×800 size */
 .maze-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%; /* Adjust to parent width */
-     /* Increased maximum width */
-    aspect-ratio: 1 / 1; /* Maintain square ratio */
+    width: 800px;
+    height: 800px;
+    overflow: hidden;
     border: 5px solid #ffffff;
     border-radius: 10px;
     background: #000000;
-    padding: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Force the SVG to fill 787×787 inside the 800×800 wrapper */
 svg#maze {
-    width: 1000px;
-    height: 1000px;
+    display: block;
+    width: 787px;
+    height: 787px;
     background: #ffffff;
     border-radius: 5px;
-}
-
-svg, g{
-    display: absolute;
-    width: 10000px;
-    height: 10000px;
 }
 
 /* Maze Paths Styling */
@@ -84,10 +104,10 @@ svg, g{
 
 /* Solution Path Styling */
 #solution-path {
-    stroke-dasharray: 0; /* Set dynamically via JavaScript */
-    stroke-dashoffset: 0; /* Set dynamically via JavaScript */
-    transition: stroke-dashoffset 2s linear;
-    stroke-width: 4; /* Increased for better visibility */
+    stroke-dasharray: 0;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 2s linear, stroke 0.3s;
+    stroke-width: 4;
 }
 
 /* Button Styling */
@@ -165,7 +185,7 @@ body.dark-theme .maze-paths line {
 }
 
 body.dark-theme #solution-path {
-    stroke: #ff4081; /* Brighter color for dark theme */
+    stroke: #ff4081; 
 }
 
 body.dark-theme button {
@@ -186,6 +206,7 @@ body.dark-theme .instructions {
 @media (max-width: 1000px) {
     .maze-wrapper {
         max-width: 90%;
+        max-height: 90%;
     }
 }
 
@@ -193,11 +214,9 @@ body.dark-theme .instructions {
     h1 {
         font-size: 2.5em;
     }
-
-    .instructions {
-        font-size: 1em;
+    .timer-display {
+        font-size: 1.1em;
     }
-
     button {
         font-size: 1em;
         padding: 10px 20px;
@@ -208,16 +227,13 @@ body.dark-theme .instructions {
     h1 {
         font-size: 2em;
     }
-
-    .instructions {
+    .timer-display {
         font-size: 0.9em;
     }
-
     button {
         font-size: 0.9em;
         padding: 8px 16px;
     }
-
     .buttons {
         flex-direction: column;
     }
@@ -228,3 +244,62 @@ button:focus {
     outline: 2px solid #1db954;
     outline-offset: 2px;
 }
+
+/* ========================================= */
+/* MODAL STYLING START */
+/* ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: #fff;
+    color: #000;
+    padding: 30px;
+    border-radius: 10px;
+    width: 70%;
+    max-width: 600px;
+    text-align: left;
+    transform: scale(0.7);
+    transition: transform 0.4s ease;
+}
+
+.modal-overlay.show .modal-content {
+    transform: scale(1);
+}
+
+.close-modal-btn {
+    margin-top: 20px;
+    background-color: #1db954;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 24px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.close-modal-btn:hover {
+    background-color: #159f46;
+}
+/* ========================================= */
+/* MODAL STYLING END */
+/* ========================================= */

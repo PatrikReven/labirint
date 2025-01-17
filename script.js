@@ -4,172 +4,286 @@ document.addEventListener("DOMContentLoaded", () => {
     const toggleInstructionsBtn = document.getElementById("toggle-instructions-btn");
     const themeBtn = document.getElementById("theme-btn");
     const downloadBtn = document.getElementById("download-btn");
+    const colorBtn = document.getElementById("color-btn");
+  
     const solutionPath = document.getElementById("solution-path");
-    const instructions = document.querySelector(".instructions");
-    const spinner = document.getElementById("spinner");
-    const mazeSVG = document.getElementById("maze");
 
-    console.log("Script loaded.");
-
-    // Check if solution path exists
-    if (!solutionPath) {
-        console.error("Element 'solution-path' not found!");
-        return;
-    }
-
-    // Calculate the length of the solution path
+  if (solutionPath) {
+    // Calculate its length once
     const pathLength = solutionPath.getTotalLength();
-    console.log(`Solution path length: ${pathLength}`);
 
-    // Set stroke-dasharray and stroke-dashoffset to hide the path
+    // Immediately set dasharray/dashoffset so the path is hidden
     solutionPath.style.strokeDasharray = pathLength;
     solutionPath.style.strokeDashoffset = pathLength;
-
-    // Flag to track solution visibility
+  }
+    const spinner = document.getElementById("spinner");
+    const mazeSVG = document.getElementById("maze");
+    const player = document.getElementById("player"); 
+    const instructionsModal = document.getElementById("instructions-modal");
+    const closeModalBtn = document.getElementById("close-modal-btn");
+  
+    // Gather all labyrinth lines for collision checks
+    const lines = document.querySelectorAll('.maze-paths line');
+  
+    // Timer
+    const timerDisplay = document.getElementById("timer-display");
+    let timerInterval;
+    let startTime = 0;
+    let isTimerRunning = false;
+  
     let isSolutionVisible = false;
-
-    // Flag to track current theme
     let isDarkTheme = false;
-
-    // Function to reveal the solution
-    const revealSolution = () => {
-        console.log("Revealing solution.");
-        solutionBtn.disabled = true;
-        resetBtn.disabled = true;
-        themeBtn.disabled = true;
-        downloadBtn.disabled = true;
-
-        // Reveal the solution path
+    let pathLength = 0;
+    const circleRadius = parseFloat(player.getAttribute("r")) || 8;
+  
+    if (solutionPath) {
+      pathLength = solutionPath.getTotalLength();
+      solutionPath.style.strokeDasharray = pathLength;
+      solutionPath.style.strokeDashoffset = pathLength;
+    }
+  
+    // ========== Timer ==========
+    const startTimer = () => {
+      if (isTimerRunning) return;
+      isTimerRunning = true;
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        timerDisplay.textContent = `Time: ${elapsed}s`;
+      }, 1000);
+    };
+    const stopTimer = () => {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+    };
+    const resetTimerDisplay = () => {
+      timerDisplay.textContent = "Time: 0s";
+    };
+  
+    // ========== Toggle Solution ==========
+    const toggleSolution = () => {
+      if (!solutionPath) return;
+      solutionBtn.disabled = true;
+      if (!isSolutionVisible) {
         solutionPath.style.strokeDashoffset = "0";
         solutionBtn.innerHTML = '<i class="fas fa-pause-circle"></i> Hide Solution';
-
-        isSolutionVisible = true;
-
-        // Re-enable buttons after 2 seconds
-        setTimeout(() => {
-            solutionBtn.disabled = false;
-            resetBtn.disabled = false;
-            themeBtn.disabled = false;
-            downloadBtn.disabled = false;
-            console.log("Buttons re-enabled after revealing solution.");
-        }, 2000);
-    };
-
-    // Function to toggle the solution
-    const toggleSolution = () => {
-        console.log("Solution toggle button clicked.");
-        solutionBtn.disabled = true;
-
-        if (!isSolutionVisible) {
-            // Reveal the solution
-            solutionPath.style.strokeDashoffset = "0";
-            solutionBtn.innerHTML = '<i class="fas fa-pause-circle"></i> Hide Solution';
-            console.log("Solution revealed.");
-        } else {
-            // Hide the solution
-            solutionPath.style.strokeDashoffset = pathLength;
-            solutionBtn.innerHTML = '<i class="fas fa-play-circle"></i> Show Solution';
-            console.log("Solution hidden.");
-        }
-
-        // Toggle the visibility flag
-        isSolutionVisible = !isSolutionVisible;
-
-        // Re-enable the button after 2 seconds
-        setTimeout(() => {
-            solutionBtn.disabled = false;
-            console.log("Solution toggle button re-enabled.");
-        }, 2000);
-    };
-
-    // Function to reset the maze
-    const resetMaze = () => {
-        console.log("Reset button clicked.");
+        stopTimer();
+      } else {
         solutionPath.style.strokeDashoffset = pathLength;
-        isSolutionVisible = false;
         solutionBtn.innerHTML = '<i class="fas fa-play-circle"></i> Show Solution';
-        console.log("Maze reset to initial state.");
+      }
+      isSolutionVisible = !isSolutionVisible;
+      setTimeout(() => (solutionBtn.disabled = false), 2000);
     };
-
-    // Function to toggle instructions visibility
-    const toggleInstructions = () => {
-        console.log("Toggle instructions button clicked.");
-        if (instructions.style.opacity === "0" || instructions.style.opacity === "") {
-            instructions.style.opacity = "1";
-            toggleInstructionsBtn.innerHTML = '<i class="fas fa-info-circle"></i> Hide Instructions';
-            console.log("Instructions shown.");
-        } else {
-            instructions.style.opacity = "0";
-            toggleInstructionsBtn.innerHTML = '<i class="fas fa-info-circle"></i> Show Instructions';
-            console.log("Instructions hidden.");
-        }
+  
+    // ========== Reset Maze ==========
+    const resetMaze = () => {
+      if (solutionPath) {
+        solutionPath.style.strokeDashoffset = pathLength;
+      }
+      isSolutionVisible = false;
+      solutionBtn.innerHTML = '<i class="fas fa-play-circle"></i> Show Solution';
+  
+      stopTimer();
+      resetTimerDisplay();
+  
+      // Move circle to top-left (2,2)
+      player.setAttribute("cx", 2);
+      player.setAttribute("cy", 2);
     };
-
-    // Function to toggle theme
+  
+    // ========== Theme Toggle ==========
     const toggleTheme = () => {
-        console.log("Theme toggle button clicked.");
-        document.body.classList.toggle("dark-theme");
-        isDarkTheme = !isDarkTheme;
-
-        if (isDarkTheme) {
-            themeBtn.innerHTML = '<i class="fas fa-sun"></i> Light Theme';
-            console.log("Switched to dark theme.");
-        } else {
-            themeBtn.innerHTML = '<i class="fas fa-moon"></i> Dark Theme';
-            console.log("Switched to light theme.");
-        }
+      document.body.classList.toggle("dark-theme");
+      isDarkTheme = !isDarkTheme;
+      themeBtn.innerHTML = isDarkTheme
+        ? '<i class="fas fa-sun"></i> Light Theme'
+        : '<i class="fas fa-moon"></i> Dark Theme';
     };
-
-    // Function to download the maze as SVG
+  
+    // ========== Download Maze ==========
     const downloadMaze = () => {
-        console.log("Download button clicked.");
-        spinner.classList.remove("hidden");
-        downloadBtn.disabled = true;
-
-        // Serialize SVG
-        const serializer = new XMLSerializer();
-        let source = serializer.serializeToString(mazeSVG);
-
-        // Add namespaces if missing
-        if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
-            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-        }
-        if (!source.match(/^<svg[^>]+"http:\/\/www\.w3\.org\/1999\/xlink"/)) {
-            source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-        }
-
-        // Add XML declaration
-        source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-
-        // Convert SVG to Blob
-        const svgBlob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
-        const url = URL.createObjectURL(svgBlob);
-
-        // Create download link and trigger download
-        const downloadLink = document.createElement("a");
-        downloadLink.href = url;
-        downloadLink.download = "spotify_labyrinth.svg";
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-
-        // Revoke the object URL
-        URL.revokeObjectURL(url);
-
-        console.log("Maze downloaded as SVG.");
-
-        // Hide spinner and re-enable button after 1 second
-        setTimeout(() => {
-            spinner.classList.add("hidden");
-            downloadBtn.disabled = false;
-            console.log("Download button re-enabled and spinner hidden.");
-        }, 1000);
+      spinner.classList.remove("hidden");
+      downloadBtn.disabled = true;
+  
+      const serializer = new XMLSerializer();
+      let source = serializer.serializeToString(mazeSVG);
+  
+      if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+      }
+      if (!source.match(/^<svg[^>]+"http:\/\/www\.w3\.org\/1999\/xlink"/)) {
+        source = source.replace(
+          /^<svg/,
+          '<svg xmlns:xlink="http://www.w3.org/1999/xlink"'
+        );
+      }
+      source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+  
+      const svgBlob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+  
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = "spotify_labyrinth.svg";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+  
+      setTimeout(() => {
+        spinner.classList.add("hidden");
+        downloadBtn.disabled = false;
+      }, 1000);
     };
-
-    // Event Listeners for buttons
+  
+    // ========== Random Solution Color ==========
+    const randomColor = () => {
+      if (!solutionPath) return;
+      const color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+      solutionPath.style.stroke = color;
+    };
+  
+    // ========== LINE-CIRCLE COLLISION HELPER ==========
+    /**
+     * Checks if circle at (cx, cy) with radius r 
+     * intersects the line segment (x1, y1) -> (x2, y2).
+     * Returns true if collision, false otherwise.
+     */
+    function lineCircleCollides(x1, y1, x2, y2, cx, cy, r) {
+      // Line length squared
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const lineLenSq = dx*dx + dy*dy;
+  
+      // If line is a point (unlikely here, but just in case)
+      if (lineLenSq === 0) {
+        // distance from the circle center to this point
+        const dist = Math.hypot(cx - x1, cy - y1);
+        return dist <= r;
+      }
+  
+      // Project circle center onto the line 
+      // param "t" is from 0..1 if the projection is within the segment
+      const t = ((cx - x1)*dx + (cy - y1)*dy) / lineLenSq;
+  
+      // Closest point on the line
+      let closestX, closestY;
+      if (t < 0) {
+        // before segment start
+        closestX = x1;
+        closestY = y1;
+      } else if (t > 1) {
+        // after segment end
+        closestX = x2;
+        closestY = y2;
+      } else {
+        // on the segment
+        closestX = x1 + t * dx;
+        closestY = y1 + t * dy;
+      }
+  
+      // Distance from circle center to that closest point
+      const distX = closestX - cx;
+      const distY = closestY - cy;
+      const distSq = distX*distX + distY*distY;
+  
+      return distSq <= r*r;
+    }
+  
+    // ========== PLAYER MOVEMENT (W, A, S, D) WITH COLLISION ==========
+    const moveSpeed = 3;
+    const boundary = 482;
+  
+    /**
+     * Attempt to move circle from (cx, cy) to (newCx, newCy).
+     * If collides with any line, movement is blocked.
+     */
+    function canMoveTo(newCx, newCy) {
+      // 1) quick boundary clamp
+      if (newCx < 0) newCx = 0;
+      if (newCy < 0) newCy = 0;
+      if (newCx > boundary) newCx = boundary;
+      if (newCy > boundary) newCy = boundary;
+  
+      // 2) check collision with each line
+      for (const line of lines) {
+        const x1 = parseFloat(line.getAttribute("x1"));
+        const y1 = parseFloat(line.getAttribute("y1"));
+        const x2 = parseFloat(line.getAttribute("x2"));
+        const y2 = parseFloat(line.getAttribute("y2"));
+  
+        const collides = lineCircleCollides(
+          x1, y1, x2, y2,
+          newCx, newCy,
+          circleRadius
+        );
+        if (collides) {
+          // collision -> block movement
+          return { blocked: true, cx: 0, cy: 0 };
+        }
+      }
+  
+      // no collision, return safe position
+      return { blocked: false, cx: newCx, cy: newCy };
+    }
+  
+    // Check if we reached near (470,470)
+    function checkWin(cx, cy) {
+      if (cx >= 470 && cy >= 470) {
+        stopTimer();
+        alert("You Win! Congrats on reaching the bottom-right corner!");
+      }
+    }
+  
+    // Keydown for W, A, S, D
+    document.addEventListener("keydown", (e) => {
+      let cx = parseFloat(player.getAttribute("cx"));
+      let cy = parseFloat(player.getAttribute("cy"));
+  
+      let newCx = cx;
+      let newCy = cy;
+  
+      switch (e.key.toLowerCase()) {
+        case "w": newCy -= moveSpeed; break;
+        case "s": newCy += moveSpeed; break;
+        case "a": newCx -= moveSpeed; break;
+        case "d": newCx += moveSpeed; break;
+        default: return; // not WASD
+      }
+  
+      // Start timer if not running
+      if (!isTimerRunning) {
+        startTimer();
+      }
+  
+      // Attempt to move
+      const result = canMoveTo(newCx, newCy);
+      if (!result.blocked) {
+        // apply the new coords
+        player.setAttribute("cx", result.cx);
+        player.setAttribute("cy", result.cy);
+        // check for "finish" area
+        checkWin(result.cx, result.cy);
+      } 
+      // else { blocked, do nothing }
+    });
+  
+    // ========== Modal + Button Listeners ==========
+    toggleInstructionsBtn.addEventListener("click", () => {
+      instructionsModal.classList.add("show");
+      instructionsModal.classList.remove("hidden");
+    });
+    closeModalBtn.addEventListener("click", () => {
+      instructionsModal.classList.remove("show");
+      setTimeout(() => instructionsModal.classList.add("hidden"), 400);
+    });
+  
     solutionBtn.addEventListener("click", toggleSolution);
     resetBtn.addEventListener("click", resetMaze);
-    toggleInstructionsBtn.addEventListener("click", toggleInstructions);
     themeBtn.addEventListener("click", toggleTheme);
     downloadBtn.addEventListener("click", downloadMaze);
-});
+    colorBtn.addEventListener("click", randomColor);
+  
+  });
+  
