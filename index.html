@@ -19,7 +19,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>Spotify Labyrinth - WASD Version</h1>
+    <h1>Spotify Labyrinth</h1>
 
     <!-- Timer display -->
     <div class="timer-display" id="timer-display">
@@ -496,6 +496,7 @@
                     <line x1="466" y1="338" x2="466" y2="450" />
                     <line x1="482" y1="2" x2="482" y2="482" />
                 </g>
+                <image href="slike/iPhone.png" x="221" y="442" width="40" height="40" />
                 <!-- Solution Path (hidden by default) -->
                 <polyline id="solution-path" fill="none" stroke="#ff0000" stroke-width="4" stroke-linecap="square"
                     stroke-linejoin="round"
@@ -522,6 +523,15 @@
                 </p>
                 <button id="close-modal-btn" class="close-modal-btn">
                   Close Instructions
+                </button>
+              </div>
+            </div>
+            <div class="modal-overlay hidden" id="win-modal">
+              <div class="modal-content">
+                <h2>Congratulations!</h2>
+                <img src="slike/win.gif" alt="Win GIF" />
+                <button id="close-win-modal-btn" class="close-modal-btn">
+                  Close
                 </button>
               </div>
             </div>
