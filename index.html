@@ -4,8 +4,9 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Spotify Labyrinth - WASD</title>
+  <link rel="icon" type="image/x-icon" href="slike/spotify.ico" />
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <!-- Font Awesome for Icons -->
   <link
     rel="stylesheet"
@@ -23,15 +24,12 @@
     <h1>Spotify Labyrinth</h1>
 
     <!-- Timer display -->
-    <div class="timer-display" id="timer-display">
-      Time: 0s
-    </div>
-    <div class="best-time" id="best-time-display">
-      Best Time: --
-    </div>
+    <div class="timer-display" id="timer-display">Time: 0s</div>
+    <div class="best-time" id="best-time-display">Best Time: --</div>
+
     <div class="buttons">
       <button id="solution-btn" aria-label="Show Solution" title="Show or hide the maze solution">
-        <i class="fas fa-play-circle"></i> Show Solution
+        <i class="fas fa-play-circle"></i> Solution
       </button>
       <button id="reset-btn" aria-label="Reset Maze" title="Reset the maze">
         <i class="fas fa-redo"></i> Reset Maze
@@ -40,7 +38,7 @@
         <i class="fas fa-info-circle"></i> Instructions
       </button>
       <button id="theme-btn" aria-label="Change Theme" title="Switch between light and dark themes">
-        <i class="fas fa-adjust"></i> Change Theme
+        <i class="fas fa-adjust"></i> Dark Theme
       </button>
       <button id="download-btn" aria-label="Download Maze" title="Download the maze as SVG">
         <i class="fas fa-download"></i> Download Maze
@@ -48,15 +46,15 @@
       <button id="color-btn" aria-label="Random Solution Color" title="Randomize the solution path color">
         <i class="fas fa-palette"></i> Random Color
       </button>
-      <!-- New music toggle button -->
+      <!-- Music toggle button -->
       <button id="music-btn" aria-label="Toggle Music" title="Play or stop background music">
         <i class="fas fa-music"></i> Music: OFF
       </button>
     </div>
-    
-    <div class="maze-wrapper">
-      <!-- Main maze SVG -->
-      <svg id="maze" viewBox="0 0 482 482" xmlns="http://www.w3.org/2000/svg">
+
+    <div class="maze-wrapper glow-border">
+      <!-- Main maze SVG (shrink to 687x687 so total wrapper 700x700) -->
+      <svg id="maze" viewBox="0 0 482 482" xmlns="http://www.w3.org/2000/svg" width="687" height="687">
         <title>Spotify Labyrinth</title>
         <desc>Interaktivni labirint.</desc>
                 <!-- Labirint poti -->
@@ -514,63 +512,63 @@
                 </svg>
               </div>
               <!-- Mobile Buttons for Movement -->
-    <div class="mobile-controls">
-      <button id="move-up" aria-label="Move Up">
-        <i class="fas fa-arrow-up"></i>
-      </button>
-      <div>
-        <button id="move-left" aria-label="Move Left">
-          <i class="fas fa-arrow-left"></i>
-        </button>
-        <button id="move-down" aria-label="Move Down">
-          <i class="fas fa-arrow-down"></i>
-        </button>
-        <button id="move-right" aria-label="Move Right">
-          <i class="fas fa-arrow-right"></i>
-        </button>
-      </div>
-    </div>
+              <div class="mobile-controls">
+                <button id="move-up" aria-label="Move Up">
+                  <i class="fas fa-arrow-up"></i>
+                </button>
+                <div>
+                  <button id="move-left" aria-label="Move Left">
+                    <i class="fas fa-arrow-left"></i>
+                  </button>
+                  <button id="move-down" aria-label="Move Down">
+                    <i class="fas fa-arrow-down"></i>
+                  </button>
+                  <button id="move-right" aria-label="Move Right">
+                    <i class="fas fa-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
               
               <!-- Loading Spinner -->
               <div id="spinner" class="spinner hidden"></div>
             </div>
           
             <!-- Modal Overlay for Instructions -->
-            <div class="modal-overlay hidden" id="instructions-modal">
-              <div class="modal-content">
-                <h2>Instructions</h2>
-                <p>
-                  Welcome to the Spotify Labyrinth! 
-                  <br /><br />
-                  - Use <strong>W, A, S, D</strong> to move the green circle.<br/>
-                  - If the circle touches any black wall, movement is blocked.<br/>
-                  - Show/Hide solution, reset, or change theme as you like.
-                </p>
-                <button id="close-modal-btn" class="close-modal-btn">
-                  Close Instructions
-                </button>
-              </div>
-            </div>
-              <!-- Win Modal (Overlay) -->
-<div class="modal-overlay hidden" id="win-modal">
-  <div class="modal-content win-modal-content">
-    <h2>Congratulations!</h2>
-    <img src="slike/win.gif" alt="Win GIF" />
-    <p>You found the iPhone in <span id="final-time"></span> seconds!</p>
-
-    <button id="restart-game-btn" class="close-modal-btn">
-      <i class="fas fa-undo"></i> Restart Game
-    </button>
-    <button id="share-btn" class="close-modal-btn">
-      <i class="fas fa-share"></i> Share Score
-    </button>
+  <div class="modal-overlay hidden" id="instructions-modal">
+    <div class="modal-content">
+      <h2>Instructions</h2>
+      <p>
+        Welcome to the Spotify Labyrinth!
+        <br /><br />
+        - Use <strong>W, A, S, D</strong> to move the green circle.<br/>
+        - If the circle touches any black wall, movement is blocked.<br/>
+        - Show/Hide solution, reset, or change theme as you like.
+      </p>
+      <button id="close-modal-btn" class="close-modal-btn">
+        Close Instructions
+      </button>
+    </div>
   </div>
-</div>
+
+  <!-- Win Modal (Overlay) -->
+  <div class="modal-overlay hidden" id="win-modal">
+    <div class="modal-content win-modal-content">
+      <h2>Congratulations!</h2>
+      <img src="slike/win.gif" alt="Win GIF" />
+      <p>You found the iPhone in <span id="final-time"></span> seconds!</p>
+      <button id="restart-game-btn" class="close-modal-btn">
+        <i class="fas fa-undo"></i> Restart Game
+      </button>
+      <button id="share-btn" class="close-modal-btn">
+        <i class="fas fa-share"></i> Share Score
+      </button>
+    </div>
+  </div>
 
   <!-- Confetti container -->
   <div id="confetti-container"></div>
 
-  <!-- Main JS -->
+  <!-- Main JS (ne spremenjeno veliko, original pač) -->
   <script src="script.js"></script>
 </body>
 </html>

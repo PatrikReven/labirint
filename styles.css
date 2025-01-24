@@ -1,126 +1,130 @@
-/* Reset */
-* {
+/* Reset and base */
+html, body {
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
+    /* Custom fancy cursor */
+    cursor: url("slike/fancy-cursor.png"), auto; /* Lahko si izbereš kak PNG */
+  }
+  
+  * {
     box-sizing: border-box;
   }
   
-/* Telo: dve plasti ozadja (tvoja slika + gradient), animirani */
-body {
-    margin: 0;
-    padding: 0;
-    /* Dve plasti (z `,` ločimo):
-       1) ozadje.jpg
-       2) linear-gradient */
+  /* Body z dvema plastema: ozadje.jpg in barvni gradient z overlay blend mode */
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    /* Nova pozicija: center vertical + center horizontal */
+    align-items: center; 
+    justify-content: flex-start; 
+    /* Če želiš popolno sredino, da se labirint res postavi na sredo ekrana:
+       justify-content: center;
+       (spodaj sem vseeno pustil flex-start, ti se odloči) 
+    */
+  
+    /* Dve plasti: 
+      1) ozadje (slika) 
+      2) barvni gradient 
+    */
     background: 
       url("slike/ozadje.jpg") center/cover no-repeat,
       linear-gradient(135deg, #1db954 0%, #0d6a34 40%, #00FF88 100%);
-    /* Uporabimo mešanje, da se slika in barve prekrivajo: */
     background-blend-mode: overlay;
-  
-    /* Nastavimo, da se prva plast (slika) scale-a, 
-       druga (gradient) bo v 400% velikosti za lep prelivaški efekt. */
     background-size: cover, 400% 400%;
   
-    /* Dve animaciji:
-       1) gradientBG = gradient se preliva
-       2) bgImageMove = slika se malo premika */
+    /* Animacija preliva in slike */
     animation:
       gradientBG 10s ease infinite,
       bgImageMove 20s ease-in-out infinite;
   
-    /* Da se vsebina (container) postavi normalno od zgoraj navzdol */
-    display: flex;
-    flex-direction: column;
-    align-items: center;    /* center horizontalno */
-    justify-content: flex-start; /* navadno od vrha navzdol, 
-                                    lahko daš center, če želiš na sredino zaslona */
-    min-height: 100vh;
-    color: #fff;
     font-family: 'Baloo 2', 'Roboto', sans-serif;
+    color: #ffffff;
   }
   
-  /* Animacija preliva za gradient */
+  /* Subtilna animacija preliva v gradientu */
   @keyframes gradientBG {
-    0% {
-      background-position: 0% 50%, 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%, 50% 50%;
-    }
-    100% {
-      background-position: 0% 50%, 0% 50%;
-    }
+    0%   { background-position: 0% 50%,  0% 50%; }
+    50%  { background-position: 100% 50%, 50% 50%; }
+    100% { background-position: 0% 50%,  0% 50%; }
   }
-  
-  /* Animacija rahlega premika slike */
+  /* Rahlo premikanje slike ozadje.jpg */
   @keyframes bgImageMove {
-    0% {
-      background-position: 0% 50%, 0% 50%;
-    }
-    50% {
-      background-position: 3% 52%, 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%, 0% 50%;
-    }
+    0%   { background-position: 0% 50%,  0% 50%; }
+    50%  { background-position: 3% 52%,  100% 50%; }
+    100% { background-position: 0% 50%,  0% 50%; }
   }
   
-  /* Container, da vse skupinsko centriramo */
+  /* Container prilagodimo, da je vse videno brez skrolanja (če je možno) */
   .container {
     width: 100%;
-    max-width: 1200px; /* ali po želji */
+    max-width: 1200px;
+    /* Odstranimo nepotrebne margine in raje center/higher prikažemo */
+    margin: 0 auto;
+    /* da je vsebina navpično centrirana (če justify-content = center) */
     display: flex;
     flex-direction: column;
-    align-items: center; /* center horizontally */
-    justify-content: center; /* center verticalno, če želiš */
-    padding: 20px;
+    align-items: center;
+    min-height: 100vh;
+    justify-content: flex-start; /* ali center, če želiš popolno sredino */
+    padding-top: 20px; /* malo odmika od vrha */
   }
   
-  /* A subtle glow behind the main title */
+  /* Animiran neon glow za glavni naslov */
   #main-title {
-    margin-bottom: 10px;
     font-size: 3em;
-    color: #ffffff;
-    text-shadow: 0 0 10px rgba(255,255,255,0.6),
-                 0 0 20px rgba(255,255,255,0.3);
+    text-align: center;
+    color: #fff;
+    text-shadow:
+      0 0 5px #1db954,
+      0 0 10px #1db954,
+      0 0 20px #1db954,
+      0 0 40px #00FF88;
     transition: transform 0.3s;
+    margin-bottom: 20px;
   }
   #main-title:hover {
-    transform: scale(1.05);
+    transform: scale(1.07);
+    text-shadow:
+      0 0 5px #00ffa2,
+      0 0 20px #00ffa2,
+      0 0 30px #00ffa2,
+      0 0 50px #00ffa2;
   }
   
-  /* Timer display + Best Time display side-by-side */
+  /* Timer & Best time displays */
   .timer-display, .best-time {
     font-size: 1.2em;
-    margin: 5px 0;
-    background: rgba(0, 0, 0, 0.2);
+    margin: 5px;
+    background: rgba(0,0,0,0.2);
     padding: 8px 16px;
     border-radius: 20px;
     letter-spacing: 1px;
     transition: background 0.3s;
     display: inline-block;
-    margin-right: 10px;
   }
-  .timer-display:hover,
-  .best-time:hover {
+  .timer-display:hover, .best-time:hover {
     background: rgba(0,0,0,0.35);
   }
   
-  /* Buttons layout */
+  /* Buttons styling - dodamo neon hover */
   .buttons {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: wrap;       /* da se prilagaja zaslonu */
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
   }
+  
   .buttons button {
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 140px;      /* tukaj si izbereš neko minimalno širino */
+    white-space: nowrap;   /* prepreči prelome teksta */
     padding: 12px 24px;
-    font-size: 1.2em;
+    font-size: 1.1em;
     border: none;
     background: #ffffff;
     color: #1db954;
@@ -129,6 +133,7 @@ body {
     transition: background 0.3s, color 0.3s, transform 0.2s, box-shadow 0.3s;
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
   }
+  
   .buttons button:hover {
     background: #1db954;
     color: #ffffff;
@@ -138,19 +143,13 @@ body {
   button:disabled {
     background: #cccccc;
     color: #666666;
-    cursor: not-allowed;
-  }
-  button i {
-    font-size: 1em;
   }
   
-  /* Maze wrapper with a glowing border */
+  /* Maze wrapper: zdaj 700x700, neon border animacija */
   .maze-wrapper {
-    width: 800px;
-    height: 800px;
-    margin: 20px auto;  /* auto = center horizontally, 
-                           a ker je container align-items: center, 
-                           bo itak center */
+    width: 700px;
+    height: 700px;
+    margin: 0 auto 20px auto;
     overflow: hidden;
     border: 5px solid #ffffff;
     border-radius: 10px;
@@ -160,9 +159,7 @@ body {
     justify-content: center;
     align-items: center;
   }
-  
   .glow-border {
-    /* animiran sijaj */
     animation: borderGlow 4s ease-in-out infinite;
   }
   @keyframes borderGlow {
@@ -171,27 +168,25 @@ body {
     100% { box-shadow: 0 0 10px #1db954; }
   }
   
+  /* Maze SVG naj bo skoraj poln wrapperja */
   svg#maze {
-    display: block;
-    width: 787px;
-    height: 787px;
+    width: 687px;
+    height: 687px;
     background: #ffffff;
     border-radius: 5px;
-    position: relative;
   }
   
-  /* Maze lines & solution style remain mostly the same */
+  /* Maze lines */
   .maze-paths line {
     stroke: #000000;
     stroke-width: 2;
   }
-  #solution-path {
-    stroke-dasharray: 0;
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset 2s linear, stroke 0.3s;
-    stroke-width: 4;
-  }
   
+  /* Solution path ima animacijo dashoffset */
+  #solution-path {
+    stroke-width: 4;
+    transition: stroke-dashoffset 2s linear, stroke 0.3s;
+  }
   /* Player trail */
   #player-trail {
     stroke: #00ff00;
@@ -200,7 +195,7 @@ body {
     stroke-linecap: round;
   }
   
-  /* Spinner */
+  /* Spinner (centered loader) */
   .spinner {
     border: 4px solid rgba(255,255,255,0.3);
     border-top: 4px solid #ffffff;
@@ -222,7 +217,7 @@ body {
     100% { transform: translate(-50%,-50%) rotate(360deg); }
   }
   
-  /* Reset message (just like before) */
+  /* Reset message (pojavno ob resetu) */
   .reset-message {
     position: fixed;
     top: 20px;
@@ -239,30 +234,74 @@ body {
     opacity: 0;
   }
   
-  /* Mobile controls (small screens) ... same approach */
+  /* Mobile controls */
   .mobile-controls {
-    display: none;
+    display: none; /* skrij na desktopu, prikaži s @media query, če želiš */
+    margin-bottom: 20px;
   }
-  /* ... media queries for them ...*/
+  .mobile-controls button {
+    padding: 10px 15px;
+    font-size: 1.2em;
+    background: #ffffff;
+    color: #1db954;
+    border: none;
+    border-radius: 8px;
+    margin: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .mobile-controls button:hover {
+    background: #1db954;
+    color: #ffffff;
+  }
+  
+  /* Prilagoditev z media query, če želimo pokazati mobile controls na majhnih zaslonih */
+  @media (max-width: 768px) {
+    .mobile-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .maze-wrapper {
+      width: 95vw;
+      height: 95vw;
+    }
+    svg#maze {
+      width: 95vw;
+      height: 95vw;
+    }
+  }
   
   /* Dark theme toggling */
   body.dark-theme {
-    background: #121212;
+    background-color: #121212;
+    background-blend-mode: normal; /* da je temno ozadje bolj izrazito */
     color: #e0e0e0;
+    transition: background-color 0.5s, color 0.5s;
   }
+  
   body.dark-theme .maze-wrapper {
     background: #1e1e1e;
-    border-color: #e0e0e0;
+    border-color: #1db954; /* neon zelena rob */
   }
+  
   body.dark-theme svg#maze {
     background: #1e1e1e;
   }
+  
   body.dark-theme .maze-paths line {
-    stroke: #e0e0e0;
+    stroke: #bbbbbb; /* sive stene */
   }
+  
   body.dark-theme #solution-path {
-    stroke: #ff4081;
+    stroke: #00ff88; /* neon solution v dark mode */
   }
+  
+  body.dark-theme .timer-display, 
+  body.dark-theme .best-time {
+    background: rgba(255,255,255,0.1);
+  }
+  
   body.dark-theme button {
     background: #333333;
     color: #1db954;
@@ -270,20 +309,26 @@ body {
   body.dark-theme button:hover {
     background: #1db954;
     color: #ffffff;
-  }
-  body.dark-theme .instructions {
-    color: #cccccc;
+    box-shadow: 0 0 8px #1db954;
   }
   
-  /* MODALS => same as before */
+  body.dark-theme .modal-content {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  /* Modal overlays */
   .modal-overlay {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
     background-color: rgba(0,0,0,0.7);
-    display: flex; justify-content: center; align-items: center;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
     z-index: 9999;
-    opacity: 0; pointer-events: none;
+    opacity: 0; 
+    pointer-events: none;
     transition: opacity 0.4s ease;
   }
   .modal-overlay.show {
@@ -304,7 +349,7 @@ body {
     text-align: center;
     transform: scale(0.7);
     transition: transform 0.4s ease;
-    max-height: 80vh; /* so we can scroll if big */
+    max-height: 80vh; 
     overflow-y: auto;
   }
   .modal-overlay.show .modal-content {
@@ -325,7 +370,7 @@ body {
     background-color: #159f46;
   }
   
-  /* Win Modal specifics */
+  /* Win modal specifics */
   .win-modal-content img {
     max-width: 100%;
     height: auto;
@@ -333,18 +378,20 @@ body {
     margin: 0 auto;
   }
   
-  /* Confetti container + confetti pieces remain the same */
+  /* Confetti container */
   #confetti-container {
     pointer-events: none;
     position: fixed;
     top: 0; left: 0;
-    width: 100%; height: 100%;
+    width: 100%; 
+    height: 100%;
     z-index: 99999;
     overflow: hidden;
   }
   .confetti {
     position: absolute;
-    width: 12px; height: 12px;
+    width: 12px; 
+    height: 12px;
     background: red;
     opacity: 0.9;
     will-change: transform, opacity;
