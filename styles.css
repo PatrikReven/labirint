@@ -322,20 +322,39 @@ html, body {
   /* Mobile controls */
   .mobile-controls {
     display: none;
-    margin-bottom: 20px;
-    z-index: 11;
   }
+  
   .mobile-controls button {
-    padding: 10px 15px;
-    font-size: 1.2em;
+    touch-action: none;               /* ne premikaj viewporta, ne zoomaj */
+    -webkit-touch-callout: none;      /* iOS: onemogoči copy/paste menu */
+    user-select: none;                /* onemogoči selekcijo teksta */
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    width: 60px;
+    height: 60px;
+    font-size: 1.5em;
+    border: none;
+    border-radius: 50%;
     background: #ffffff;
     color: #1db954;
-    border: none;
-    border-radius: 8px;
-    margin: 5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     cursor: pointer;
-    transition: 0.3s;
+    transition: transform 0.2s, background 0.3s, color 0.3s;
   }
+  
+  .mobile-controls button:active {
+    transform: scale(0.9);
+    background: #1db954;
+    color: #ffffff;
+  }
+  
+  .mobile-controls > div {
+    display: flex;
+    gap: 10px;
+  }
+  
   .mobile-controls button:hover {
     background: #1db954;
     color: #ffffff;
@@ -481,27 +500,110 @@ html, body {
   
   /* Confetti */
   #confetti-container {
-    pointer-events: none;
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; 
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 100%;
-    z-index: 99999;
+    pointer-events: none;
+    z-index: 99999;   /* dovolj visoko, da je nad vsem */
+    overflow: hidden; /* da confeti lahko “padajo” */
+  }
+  
+/* ============== “Wave text” za Instructions ============== */
+.wave-text {
+    display: inline-block; 
+    /* Da se wave animacija lahko razporedi čez besedilo */
+  }
+  
+  .wave-text span {
+    display: inline-block;
+    animation: wave 1.5s infinite ease-in-out;
+    transform-origin: bottom center;
+  }
+  
+  /* S programskim JS ali ročno razbiješ besedilo v <span> elemente
+     - Lahko pa preprosto animiramo cel <p>. 
+     - Tu je primer, če želiš dobesedno wave effect za vsako črko. 
+     (Če nočeš ročno vsako črko v <span>, lahko pustiš enostavnejši approach.) 
+  */
+  
+  @keyframes wave {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px) rotate(6deg); }
+  }
+  
+  /* ============== Shimmer ozadje ============== */
+  .shimmer-bg {
+    position: relative;
     overflow: hidden;
   }
-  .confetti {
+  
+  /* “shimmer” overlay */
+  .shimmer-bg::before {
+    content: "";
     position: absolute;
-    width: 12px; 
-    height: 12px;
-    background: red;
-    opacity: 0.9;
-    will-change: transform, opacity;
-    animation: fall 2.5s linear forwards;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 2.5s infinite;
+    pointer-events: none;
   }
-  @keyframes fall {
+  
+  @keyframes shimmer {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%);  }
+  }
+  
+  /* ============== Win Modal: “flash-win” ============== */
+  .flash-win {
+    animation: flashWinBg 2s infinite;
+  }
+  
+  @keyframes flashWinBg {
+    0%   { box-shadow: 0 0 15px #ffea00, 0 0 30px #ffea00 inset; }
+    50%  { box-shadow: 0 0 30px #ffd700, 0 0 60px #ffd700 inset; }
+    100% { box-shadow: 0 0 15px #ffea00, 0 0 30px #ffea00 inset; }
+  }
+  
+  /* Lotto-win text (velik, blink) */
+  .lotto-win {
+    font-size: 1.6em;
+    margin: 10px 0;
+    color: #ffd700;
+    text-shadow: 0 0 5px #ffea00, 0 0 10px #ffea00;
+    animation: lottoBlink 2s infinite;
+    letter-spacing: 1.5px;
+  }
+  
+  .lotto-win span {
+    color: #ff00e1;
+  }
+  
+  @keyframes lottoBlink {
+    0%, 100% {
+      text-shadow: 0 0 5px #ffea00, 0 0 10px #ffea00;
+    }
+    50% {
+      text-shadow: 0 0 15px #fff000, 0 0 30px #fff000, 0 0 45px #ff00e1;
+      transform: scale(1.1);
+    }
+  }
+  
+  /* Če želiš še “epic confetti” ob zmagi
+     Lahko pustiš obstoječi confetti ali jih povečaš. */
+  .confetti {
+    /* Povečana velikost in čas */
+    width: 16px;
+    height: 16px;
+    animation: epicFall 3s linear forwards;
+  }
+  
+  /* Lepša pot */
+  @keyframes epicFall {
     0%   { transform: translateY(-50px) rotate(0deg); }
     50%  { opacity: 1; }
-    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    100% { transform: translateY(110vh) rotate(1080deg); opacity: 0; }
   }
   /* Video ozadje */
 .video-bg {

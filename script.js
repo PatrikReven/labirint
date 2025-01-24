@@ -77,6 +77,12 @@ document.addEventListener("DOMContentLoaded", () => {
     solutionPath.style.strokeDashoffset = pathLength;
   }
 
+  // Prevent default context menu (long press)
+  document.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+  }, { passive: false });
+
+
   /*************************************************
    * MUSIC BTN: Ko kliknemo
    *************************************************/
@@ -388,23 +394,61 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
 
-  // Mobile
-  moveUpBtn.addEventListener("click", () => {
-    keysPressed["w"] = true;
-    setTimeout(() => delete keysPressed["w"], 100);
-  });
-  moveDownBtn.addEventListener("click", () => {
-    keysPressed["s"] = true;
-    setTimeout(() => delete keysPressed["s"], 100);
-  });
-  moveLeftBtn.addEventListener("click", () => {
-    keysPressed["a"] = true;
-    setTimeout(() => delete keysPressed["a"], 100);
-  });
-  moveRightBtn.addEventListener("click", () => {
-    keysPressed["d"] = true;
-    setTimeout(() => delete keysPressed["d"], 100);
-  });
+  // ==================== MOBILE CONTROLS ====================
+  // Preprečimo default hold/zoom, dvo-tap, itd.
+  function pressKey(key) {
+    keysPressed[key] = true;
+  }
+  function releaseKey(key) {
+    if (keysPressed[key]) {
+      delete keysPressed[key];
+    }
+  }
+
+  function pointerDownHandler(e, key) {
+    e.preventDefault();  // prepreči zoom/menu
+    pressKey(key);
+  }
+  function pointerUpHandler(e, key) {
+    e.preventDefault();
+    releaseKey(key);
+  }
+  function pointerCancelHandler(e, key) {
+    e.preventDefault();
+    releaseKey(key);
+  }
+  function pointerLeaveHandler(e, key) {
+    e.preventDefault();
+    releaseKey(key);
+  }
+
+  // Move UP (W)
+  moveUpBtn.addEventListener("pointerdown", (e)=> pointerDownHandler(e, "w"));
+  moveUpBtn.addEventListener("pointerup",   (e)=> pointerUpHandler(e, "w"));
+  moveUpBtn.addEventListener("pointercancel",(e)=> pointerCancelHandler(e, "w"));
+  moveUpBtn.addEventListener("pointerout",  (e)=> pointerLeaveHandler(e, "w"));
+  moveUpBtn.addEventListener("pointerleave",(e)=> pointerLeaveHandler(e, "w"));
+
+  // Move DOWN (S)
+  moveDownBtn.addEventListener("pointerdown",(e)=> pointerDownHandler(e, "s"));
+  moveDownBtn.addEventListener("pointerup",  (e)=> pointerUpHandler(e, "s"));
+  moveDownBtn.addEventListener("pointercancel",(e)=> pointerCancelHandler(e, "s"));
+  moveDownBtn.addEventListener("pointerout",  (e)=> pointerLeaveHandler(e, "s"));
+  moveDownBtn.addEventListener("pointerleave",(e)=> pointerLeaveHandler(e, "s"));
+
+  // Move LEFT (A)
+  moveLeftBtn.addEventListener("pointerdown",(e)=> pointerDownHandler(e, "a"));
+  moveLeftBtn.addEventListener("pointerup",  (e)=> pointerUpHandler(e, "a"));
+  moveLeftBtn.addEventListener("pointercancel",(e)=> pointerCancelHandler(e, "a"));
+  moveLeftBtn.addEventListener("pointerout",  (e)=> pointerLeaveHandler(e, "a"));
+  moveLeftBtn.addEventListener("pointerleave",(e)=> pointerLeaveHandler(e, "a"));
+
+  // Move RIGHT (D)
+  moveRightBtn.addEventListener("pointerdown",(e)=> pointerDownHandler(e, "d"));
+  moveRightBtn.addEventListener("pointerup",  (e)=> pointerUpHandler(e, "d"));
+  moveRightBtn.addEventListener("pointercancel",(e)=> pointerCancelHandler(e, "d"));
+  moveRightBtn.addEventListener("pointerout",  (e)=> pointerLeaveHandler(e, "d"));
+  moveRightBtn.addEventListener("pointerleave",(e)=> pointerLeaveHandler(e, "d"));
 
   /*************************************************
    * 13) WIN MODAL
@@ -445,15 +489,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function createConfetti() {
     const confetti = document.createElement("div");
     confetti.classList.add("confetti");
-    confetti.style.left = Math.random()*100 + "%";
-    const hue = Math.floor(Math.random()*360);
+    confetti.style.left = Math.random() * 100 + "%";
+    const hue = Math.floor(Math.random() * 360);
     confetti.style.backgroundColor = `hsl(${hue}, 90%, 60%)`;
-    const size = Math.random()*10 + 8;
-    confetti.style.width = size+"px";
-    confetti.style.height= size+"px";
-    const delay = Math.random()*0.5;
-    confetti.style.animationDelay = delay+"s";
-    confettiContainer.appendChild(confetti);
+    document.getElementById("confetti-container").appendChild(confetti);
     confetti.addEventListener("animationend", ()=>confetti.remove());
   }
 
