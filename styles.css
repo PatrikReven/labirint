@@ -516,14 +516,14 @@ html, body {
 /* ============== “Wave text” za Instructions ============== */
 .wave-text {
     display: inline-block; 
-    /* Da se wave animacija lahko razporedi čez besedilo */
-  }
+    /* Da se wave animacija lahko razteza čez celoten tekst */
+}
   
-  .wave-text span {
-    display: inline-block;
-    animation: wave 1.5s infinite ease-in-out;
+.wave-text span {
+    display: inline-block; 
+    animation: waveAnimation 1.5s infinite;
     transform-origin: bottom center;
-  }
+}
   
   /* S programskim JS ali ročno razbiješ besedilo v <span> elemente
      - Lahko pa preprosto animiramo cel <p>. 
@@ -531,11 +531,23 @@ html, body {
      (Če nočeš ročno vsako črko v <span>, lahko pustiš enostavnejši approach.) 
   */
   
-  @keyframes wave {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px) rotate(6deg); }
-  }
-  
+  @keyframes waveAnimation {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px); /* Pomakne navzgor v val */
+    }
+}
+.wave-text span:nth-child(1) {
+    animation-delay: 0s;
+}
+.wave-text span:nth-child(2) {
+    animation-delay: 0.1s;
+}
+.wave-text span:nth-child(3) {
+    animation-delay: 0.2s;
+}
   /* ============== Shimmer ozadje ============== */
   .shimmer-bg {
     position: relative;
