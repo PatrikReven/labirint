@@ -28,6 +28,9 @@ html, body {
       gradientBG 10s ease infinite,
       bgImageMove 20s ease-in-out infinite;
   }
+  body.video-active {
+    background: none; /* odmaknemo sliko, da se vidi video spodaj */
+  }
   body::after {
     content: "";
     position: fixed;
@@ -500,4 +503,14 @@ html, body {
     50%  { opacity: 1; }
     100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
   }
-  
+  /* Video ozadje */
+.video-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover; /* da se video prilagodi */
+    z-index: -1;       /* v ozadje */
+    background-color: black; /* fallback barva */
+    display: block;   /* video bo viden takoj, a muted */
+  }

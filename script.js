@@ -5,55 +5,64 @@ document.addEventListener("DOMContentLoaded", () => {
   const INITIAL_CX = 234;
   const INITIAL_CY = 10;
 
+  // Gumbi in elementi
   const solutionBtn           = document.getElementById("solution-btn");
   const resetBtn              = document.getElementById("reset-btn");
   const toggleInstructionsBtn = document.getElementById("toggle-instructions-btn");
   const themeBtn              = document.getElementById("theme-btn");
   const downloadBtn           = document.getElementById("download-btn");
   const colorBtn              = document.getElementById("color-btn");
-  const musicBtn              = document.getElementById("music-btn");
-  const bgMusic               = document.getElementById("bg-music");
-  const clickSound            = document.getElementById("click-sound");
 
-  const solutionPath          = document.getElementById("solution-path");
-  const player                = document.getElementById("player");
-  const playerTrail           = document.getElementById("player-trail");
-  const spinner               = document.getElementById("spinner");
-  const mazeSVG               = document.getElementById("maze");
-  const instructionsModal     = document.getElementById("instructions-modal");
-  const closeModalBtn         = document.getElementById("close-modal-btn");
-  const winModal              = document.getElementById("win-modal");
-  const restartGameBtn        = document.getElementById("restart-game-btn");
-  const shareBtn              = document.getElementById("share-btn");
-  const mobileControls        = document.querySelector(".mobile-controls");
-  const moveUpBtn             = document.getElementById("move-up");
-  const moveDownBtn           = document.getElementById("move-down");
-  const moveLeftBtn           = document.getElementById("move-left");
-  const moveRightBtn          = document.getElementById("move-right");
-  const lines                 = document.querySelectorAll(".maze-paths line");
-  const timerDisplay          = document.getElementById("timer-display");
-  const confettiContainer     = document.getElementById("confetti-container");
-  const finalTimeSpan         = document.getElementById("final-time");
-  const bestTimeDisplay       = document.getElementById("best-time-display");
+  // Glasba & Video
+  const musicBtn  = document.getElementById("music-btn");
+  const bgVideo   = document.getElementById("bg-video");   // video
+  const bgMusic   = document.getElementById("bg-music");   // mp3
+  const clickSound= document.getElementById("click-sound");
 
-  // Typed effect v navodilih
-  const typedTitle            = document.getElementById("typed-title");
+  // Samo ena spremenljivka za music ON/OFF
+  let isMusicPlaying = false;
 
+  // Ostali elementi
+  const solutionPath      = document.getElementById("solution-path");
+  const player            = document.getElementById("player");
+  const playerTrail       = document.getElementById("player-trail");
+  const spinner           = document.getElementById("spinner");
+  const mazeSVG           = document.getElementById("maze");
+  const instructionsModal = document.getElementById("instructions-modal");
+  const closeModalBtn     = document.getElementById("close-modal-btn");
+  const winModal          = document.getElementById("win-modal");
+  const restartGameBtn    = document.getElementById("restart-game-btn");
+  const shareBtn          = document.getElementById("share-btn");
+  const mobileControls    = document.querySelector(".mobile-controls");
+  const moveUpBtn         = document.getElementById("move-up");
+  const moveDownBtn       = document.getElementById("move-down");
+  const moveLeftBtn       = document.getElementById("move-left");
+  const moveRightBtn      = document.getElementById("move-right");
+  const lines             = document.querySelectorAll(".maze-paths line");
+  const timerDisplay      = document.getElementById("timer-display");
+  const confettiContainer = document.getElementById("confetti-container");
+  const finalTimeSpan     = document.getElementById("final-time");
+  const bestTimeDisplay   = document.getElementById("best-time-display");
+
+  // Typed effect
+  const typedTitle        = document.getElementById("typed-title");
+
+  // Timers, ...
   let timerInterval;
   let startTime         = 0;
   let isTimerRunning    = false;
   let isSolutionVisible = false;
   let isDarkTheme       = false;
   let pathLength        = 0;
-  let isMusicPlaying    = false;
-  let keysPressed       = {};
 
+  // Za premikanje
+  let keysPressed       = {};
   const circleRadius    = parseFloat(player.getAttribute("r")) || 5;
   const moveSpeed       = 2;
   const boundary        = 482;
   const MAX_TRAIL_POINTS= 500;
 
-  // Best time iz localStorage
+  // Najboljši čas
   let bestTime = localStorage.getItem("labyrinthBestTime");
   if (bestTime) {
     bestTimeDisplay.textContent = `Best Time: ${bestTime}s`;
@@ -61,12 +70,46 @@ document.addEventListener("DOMContentLoaded", () => {
     bestTimeDisplay.textContent = `Best Time: --`;
   }
 
-  // Solution path dashoffset
+  // Nastavitve solution path
   if (solutionPath) {
     pathLength = solutionPath.getTotalLength();
     solutionPath.style.strokeDasharray  = pathLength;
     solutionPath.style.strokeDashoffset = pathLength;
   }
+
+  /*************************************************
+   * MUSIC BTN: Ko kliknemo
+   *************************************************/
+  musicBtn.addEventListener("click", () => {
+    playClickSound();
+    if (!isMusicPlaying) {
+      // 1) Pokažemo video = display: block
+      bgVideo.style.display = "block";
+
+      // 2) Odstranimo background-image iz body -> body.video-active
+      document.body.classList.add("video-active");
+
+      // 3) Zagnamo mp3
+      bgMusic.play().then(()=>{
+        isMusicPlaying = true;
+        musicBtn.innerHTML = '<i class="fas fa-music"></i> Music: ON';
+      }).catch(err=>{
+        console.log("Music play error:", err);
+        alert("Could not play music automatically, please allow audio or unmute tab!");
+      });
+    } else {
+      // OFF
+      bgMusic.pause();
+      isMusicPlaying = false;
+      musicBtn.innerHTML = '<i class="fas fa-music"></i> Music: OFF';
+
+      // Skrijemo video
+      bgVideo.style.display = "none";
+
+      // Dodamo nazaj ozadje (slika)
+      document.body.classList.remove("video-active");
+    }
+  });
 
   /*************************************************
    * 2) Move iPhone to end of solution
@@ -82,6 +125,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const [x, y] = lastPoint.split(",").map(Number);
     const iphone = document.querySelector("image");
+    if (!iphone) return;
+
     const phoneWidth  = parseInt(iphone.getAttribute("width"), 10);
     const phoneHeight = parseInt(iphone.getAttribute("height"), 10);
 
@@ -186,6 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const serializer = new XMLSerializer();
     let source = serializer.serializeToString(mazeSVG);
 
+    // Dodamo xmlns, če manjka
     if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
       source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
     }
@@ -259,8 +305,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const iphone = document.querySelector("image");
+    if (!iphone) return { blocked: false, cx: newCx, cy: newCy, win: false };
     const bbox   = iphone.getBBox();
     const margin = 10;
+
     if (
       (newCx - circleRadius) >= (bbox.x + margin) &&
       (newCx + circleRadius) <= (bbox.x + bbox.width - margin) &&
@@ -324,7 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   requestAnimationFrame(updatePlayerPosition);
 
-  // Keyboard events
+  // Keyboard
   function handleKeyDown(e) {
     const key = e.key.toLowerCase();
     if (["w","a","s","d"].includes(key)) {
@@ -340,7 +388,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
 
-  // Mobile events
+  // Mobile
   moveUpBtn.addEventListener("click", () => {
     keysPressed["w"] = true;
     setTimeout(() => delete keysPressed["w"], 100);
@@ -424,7 +472,6 @@ document.addEventListener("DOMContentLoaded", () => {
    *************************************************/
   toggleInstructionsBtn.addEventListener("click", () => {
     playClickSound();
-    // Typed effect reset
     typedTitle.style.width = "0";
     typedTitle.textContent = "INSTRUCTIONS";
     instructionsModal.classList.add("show");
@@ -441,24 +488,6 @@ document.addEventListener("DOMContentLoaded", () => {
   themeBtn.addEventListener("click", toggleTheme);
   downloadBtn.addEventListener("click", downloadMaze);
   colorBtn.addEventListener("click", randomColor);
-
-  // Glasba
-  musicBtn.addEventListener("click", ()=> {
-    playClickSound();
-    if (!isMusicPlaying) {
-      bgMusic.play().then(()=>{
-        isMusicPlaying = true;
-        musicBtn.innerHTML = '<i class="fas fa-music"></i> Music: ON';
-      }).catch(err=>{
-        console.log("Music play error: ", err);
-        alert("Could not play music automatically, please allow audio or unmute tab!");
-      });
-    } else {
-      bgMusic.pause();
-      isMusicPlaying = false;
-      musicBtn.innerHTML = '<i class="fas fa-music"></i> Music: OFF';
-    }
-  });
 
   /*************************************************
    * 17) INIT
