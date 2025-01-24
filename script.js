@@ -12,6 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const downloadBtn           = document.getElementById("download-btn");
   const colorBtn              = document.getElementById("color-btn");
 
+  // NEW: Music toggle button & audio element
+  const musicBtn              = document.getElementById("music-btn");
+  const bgMusic               = document.getElementById("bg-music");
+
   const solutionPath          = document.getElementById("solution-path");
   const player                = document.getElementById("player");
   const playerTrail           = document.getElementById("player-trail");
@@ -38,12 +42,26 @@ document.addEventListener("DOMContentLoaded", () => {
   // We'll display final time in the win modal
   const finalTimeSpan         = document.getElementById("final-time");
 
+  // NEW: Best time display
+  const bestTimeDisplay       = document.getElementById("best-time-display");
+
   let timerInterval;
   let startTime        = 0;
   let isTimerRunning   = false;
   let isSolutionVisible = false;
   let isDarkTheme       = false;
   let pathLength        = 0;
+
+  // NEW: Keep track if music is ON or OFF
+  let isMusicPlaying   = false;
+
+  // Possibly store bestTime from localStorage
+  let bestTime = localStorage.getItem("labyrinthBestTime");
+  if (bestTime) {
+    bestTimeDisplay.textContent = `Best Time: ${bestTime}s`;
+  } else {
+    bestTimeDisplay.textContent = `Best Time: --`;
+  }
 
   const circleRadius = parseFloat(player.getAttribute("r")) || 5;
   let keysPressed = {};
@@ -109,12 +127,10 @@ document.addEventListener("DOMContentLoaded", () => {
     solutionBtn.disabled = true;
 
     if (!isSolutionVisible) {
-      // Show
       solutionPath.style.strokeDashoffset = "0";
       solutionBtn.innerHTML = '<i class="fas fa-pause-circle"></i> Hide Solution';
-      stopTimer(); // Pause timer if user reveals solution
+      stopTimer(); 
     } else {
-      // Hide
       solutionPath.style.strokeDashoffset = pathLength;
       solutionBtn.innerHTML = '<i class="fas fa-play-circle"></i> Show Solution';
     }
@@ -153,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 6) THEME TOGGLE
+   * 6) TOGGLE THEME
    *************************************************/
   function toggleTheme() {
     document.body.classList.toggle("dark-theme");
@@ -173,7 +189,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const serializer = new XMLSerializer();
     let source = serializer.serializeToString(mazeSVG);
 
-    // Add missing namespaces if necessary
     if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
       source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
     }
@@ -190,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const downloadLink = document.createElement("a");
     downloadLink.href = url;
-    downloadLink.download = "spotify_labyrinth.svg";
+    downloadLink.download = "spotify_labyrinth_ultra.svg";
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
@@ -219,12 +234,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const dy = y2 - y1;
     const lineLenSq = dx*dx + dy*dy;
 
-    // If line length == 0 => treat as point
     if (lineLenSq === 0) {
       return Math.hypot(cx - x1, cy - y1) <= r;
     }
 
-    // Project circle center onto line
     const t = ((cx - x1) * dx + (cy - y1) * dy) / lineLenSq;
     const closestX = (t < 0) ? x1 : (t > 1) ? x2 : (x1 + t * dx);
     const closestY = (t < 0) ? y1 : (t > 1) ? y2 : (y1 + t * dy);
@@ -236,11 +249,9 @@ document.addEventListener("DOMContentLoaded", () => {
    * 10) MOVEMENT AND WALL CHECK
    *************************************************/
   function canMoveTo(newCx, newCy) {
-    // clamp inside 0..482
     newCx = Math.max(0, Math.min(boundary, newCx));
     newCy = Math.max(0, Math.min(boundary, newCy));
 
-    // Check collisions with all lines
     for (const line of lines) {
       const x1 = parseFloat(line.getAttribute("x1"));
       const y1 = parseFloat(line.getAttribute("y1"));
@@ -256,15 +267,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Check if inside iPhone bounding box with some margin
     const iphone = document.querySelector("image");
     const bbox   = iphone.getBBox();
     const margin = 10; // tune if needed
 
-    // If the entire circle fits inside bounding box => "win"
     if (
       (newCx - circleRadius) >= (bbox.x + margin) &&
-      (newCx + circleRadius) <= (bbox.x + bbox.width  - margin) &&
+      (newCx + circleRadius) <= (bbox.x + bbox.width - margin) &&
       (newCy - circleRadius) >= (bbox.y + margin) &&
       (newCy + circleRadius) <= (bbox.y + bbox.height - margin)
     ) {
@@ -308,9 +317,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (result.win) {
           stopTimer();
-          // Show the final time in modal
           const finalTime = parseInt(timerDisplay.textContent.replace(/[^\d]/g, ''), 10);
           finalTimeSpan.textContent = isNaN(finalTime) ? '???' : finalTime;
+
+          // NEW: if finalTime < bestTime => store in localStorage
+          if (!bestTime || (finalTime < parseInt(bestTime))) {
+            bestTime = finalTime;
+            localStorage.setItem("labyrinthBestTime", bestTime);
+            bestTimeDisplay.textContent = `Best Time: ${bestTime}s`;
+          }
 
           showWinModal();
         }
@@ -320,10 +335,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   requestAnimationFrame(updatePlayerPosition);
 
-  // Keydown / Keyup
+  // Keyboard events
   function handleKeyDown(e) {
     const key = e.key.toLowerCase();
-    if (["w", "a", "s", "d"].includes(key)) {
+    if (["w","a","s","d"].includes(key)) {
       keysPressed[key] = true;
       if (!isTimerRunning) startTimer();
     }
@@ -335,7 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   document.addEventListener("keydown", handleKeyDown);
-  document.addEventListener("keyup",   handleKeyUp);
+  document.addEventListener("keyup", handleKeyUp);
 
   // Mobile controls
   moveUpBtn.addEventListener("click", () => {
@@ -356,34 +371,30 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /*************************************************
-   * 13) SHOW WIN MODAL (WITH CONFETTI)
+   * 13) SHOW WIN MODAL
    *************************************************/
   function showWinModal() {
     const winModal = document.getElementById("win-modal");
-    // Odstranimo .hidden, dodamo .show:
     winModal.classList.add("show");
     winModal.classList.remove("hidden");
+    // Optionally, we can launch confetti
+    launchConfetti(60);
   }
-  
   function hideWinModal() {
     const winModal = document.getElementById("win-modal");
-    // Animacija: najprej remove .show, čez 400ms pa spet add .hidden:
     winModal.classList.remove("show");
     setTimeout(() => {
       winModal.classList.add("hidden");
     }, 400);
   }
 
-  // On “Restart Game” inside Win Modal
+  // “Restart Game” inside modal
   restartGameBtn.addEventListener("click", () => {
-    // Hide the modal
-    winModal.classList.remove("show");
-    setTimeout(() => winModal.classList.add("hidden"), 400);
-    // Reset
+    hideWinModal();
     resetMaze();
   });
 
-  // Simple "share" function that copies text to clipboard
+  // “Share Score” -> copy text
   shareBtn.addEventListener("click", () => {
     const currentTime = timerDisplay.textContent; 
     const shareText = `I just found the iPhone in the Spotify Labyrinth! My time was ${currentTime}. Try it yourself!`;
@@ -393,10 +404,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /*************************************************
-   * 14) CONFETTI LAUNCH
+   * 14) CONFETTI
    *************************************************/
-  function launchConfetti(count = 40) {
-    for (let i = 0; i < count; i++) {
+  function launchConfetti(count=40) {
+    for (let i=0;i<count;i++){
       createConfetti();
     }
   }
@@ -404,27 +415,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const confetti = document.createElement("div");
     confetti.classList.add("confetti");
 
-    // Random horizontal position
-    confetti.style.left = Math.random() * 100 + "%";
-    // Random color
-    const hue = Math.floor(Math.random() * 360);
+    confetti.style.left = Math.random()*100 + "%";
+    const hue = Math.floor(Math.random()*360);
     confetti.style.backgroundColor = `hsl(${hue}, 90%, 60%)`;
 
-    // Random size
-    const size = Math.random() * 10 + 8; // 8..18 px
-    confetti.style.width  = size + "px";
-    confetti.style.height = size + "px";
+    const size = Math.random()*10 + 8;
+    confetti.style.width = size+"px";
+    confetti.style.height= size+"px";
 
-    // Random delay
-    const delay = Math.random() * 0.5;
-    confetti.style.animationDelay = delay + "s";
+    const delay = Math.random()*0.5;
+    confetti.style.animationDelay = delay+"s";
 
     confettiContainer.appendChild(confetti);
-
-    // Remove after animation
-    confetti.addEventListener("animationend", () => {
-      confetti.remove();
-    });
+    confetti.addEventListener("animationend", ()=>confetti.remove());
   }
 
   /*************************************************
@@ -436,7 +439,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   closeModalBtn.addEventListener("click", () => {
     instructionsModal.classList.remove("show");
-    setTimeout(() => instructionsModal.classList.add("hidden"), 400);
+    setTimeout(() => instructionsModal.classList.add("hidden"),400);
   });
 
   solutionBtn.addEventListener("click", toggleSolution);
@@ -445,9 +448,24 @@ document.addEventListener("DOMContentLoaded", () => {
   downloadBtn.addEventListener("click", downloadMaze);
   colorBtn.addEventListener("click", randomColor);
 
-  /*************************************************
-   * FINAL SETUP
-   *************************************************/
+  // NEW: Music toggle
+  musicBtn.addEventListener("click", ()=> {
+    if (!isMusicPlaying) {
+      bgMusic.play().then(()=>{
+        isMusicPlaying = true;
+        musicBtn.innerHTML = '<i class="fas fa-music"></i> Music: ON';
+      }).catch(err=>{
+        console.log("Music play error: ", err);
+        alert("Could not play music automatically, please allow audio or unmute tab!");
+      });
+    } else {
+      bgMusic.pause();
+      isMusicPlaying = false;
+      musicBtn.innerHTML = '<i class="fas fa-music"></i> Music: OFF';
+    }
+  });
+
+  // Final init
   player.setAttribute("cx", INITIAL_CX);
   player.setAttribute("cy", INITIAL_CY);
   playerTrail.setAttribute("points", `${INITIAL_CX},${INITIAL_CY}`);
