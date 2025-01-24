@@ -46,11 +46,12 @@
         <i class="fas fa-palette"></i> Random Color
       </button>
     </div>
-        <div class="maze-wrapper">
-            <!-- Main maze SVG -->
-            <svg id="maze" viewBox="0 0 482 482" xmlns="http://www.w3.org/2000/svg">
-                <title>Spotify Labyrinth</title>
-                <desc>Interaktivni labirint.</desc>
+
+    <div class="maze-wrapper">
+      <!-- Main maze SVG -->
+      <svg id="maze" viewBox="0 0 482 482" xmlns="http://www.w3.org/2000/svg">
+        <title>Spotify Labyrinth</title>
+        <desc>Interaktivni labirint.</desc>
                 <!-- Labirint poti -->
                 <g class="maze-paths" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="square">
                     <line x1="2" y1="2" x2="226" y2="2" />
@@ -505,22 +506,23 @@
   <circle id="player" cx="234" cy="10" r="5" fill="lime" stroke="#000" stroke-width="1" />
                 </svg>
               </div>
-              <div class="mobile-controls">
-                <button id="move-up" aria-label="Move Up">
-                  <i class="fas fa-arrow-up"></i>
-                </button>
-                <div>
-                  <button id="move-left" aria-label="Move Left">
-                    <i class="fas fa-arrow-left"></i>
-                  </button>
-                  <button id="move-down" aria-label="Move Down">
-                    <i class="fas fa-arrow-down"></i>
-                  </button>
-                  <button id="move-right" aria-label="Move Right">
-                    <i class="fas fa-arrow-right"></i>
-                  </button>
-                </div>
-              </div>
+              <!-- Mobile Buttons for Movement -->
+    <div class="mobile-controls">
+      <button id="move-up" aria-label="Move Up">
+        <i class="fas fa-arrow-up"></i>
+      </button>
+      <div>
+        <button id="move-left" aria-label="Move Left">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <button id="move-down" aria-label="Move Down">
+          <i class="fas fa-arrow-down"></i>
+        </button>
+        <button id="move-right" aria-label="Move Right">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
               
               <!-- Loading Spinner -->
               <div id="spinner" class="spinner hidden"></div>
@@ -542,18 +544,26 @@
                 </button>
               </div>
             </div>
-            <div class="modal-overlay hidden" id="win-modal">
-              <div class="modal-content">
-                <h2>Congratulations!</h2>
-                <img src="slike/win.gif" alt="Win GIF" />
-                <button id="close-win-modal-btn" class="close-modal-btn">
-                  Close
-                </button>
-              </div>
-            </div>            
-  
-    <script src="script.js"></script>
-    
-</body>
+              <!-- Win Modal (Overlay) -->
+<div class="modal-overlay hidden" id="win-modal">
+  <div class="modal-content win-modal-content">
+    <h2>Congratulations!</h2>
+    <img src="slike/win.gif" alt="Win GIF" />
+    <p>You found the iPhone in <span id="final-time"></span> seconds!</p>
 
+    <button id="restart-game-btn" class="close-modal-btn">
+      <i class="fas fa-undo"></i> Restart Game
+    </button>
+    <button id="share-btn" class="close-modal-btn">
+      <i class="fas fa-share"></i> Share Score
+    </button>
+  </div>
+</div>
+
+  <!-- Confetti container -->
+  <div id="confetti-container"></div>
+
+  <!-- Main JS -->
+  <script src="script.js"></script>
+</body>
 </html>

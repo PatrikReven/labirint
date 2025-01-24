@@ -1,8 +1,6 @@
-
 document.addEventListener("DOMContentLoaded", () => {
-
   /*************************************************
-   * 1) INICIALIZACIJA SPREMENLJIVK
+   * 1) INITIALIZATION
    *************************************************/
   const INITIAL_CX = 234;
   const INITIAL_CY = 10;
@@ -22,7 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const instructionsModal     = document.getElementById("instructions-modal");
   const closeModalBtn         = document.getElementById("close-modal-btn");
   const winModal              = document.getElementById("win-modal");
-  const closeWinModalBtn      = document.getElementById("close-win-modal-btn");
+
+  // Extra modal buttons
+  const restartGameBtn        = document.getElementById("restart-game-btn");
+  const shareBtn              = document.getElementById("share-btn");
+
   const mobileControls        = document.querySelector(".mobile-controls");
   const moveUpBtn             = document.getElementById("move-up");
   const moveDownBtn           = document.getElementById("move-down");
@@ -31,6 +33,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const lines                 = document.querySelectorAll(".maze-paths line");
   const timerDisplay          = document.getElementById("timer-display");
+  const confettiContainer     = document.getElementById("confetti-container");
+
+  // We'll display final time in the win modal
+  const finalTimeSpan         = document.getElementById("final-time");
 
   let timerInterval;
   let startTime        = 0;
@@ -39,10 +45,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let isDarkTheme       = false;
   let pathLength        = 0;
 
-  // Polmer kroga (igralca)
   const circleRadius = parseFloat(player.getAttribute("r")) || 5;
+  let keysPressed = {};
+  const moveSpeedContinuous = 2;
+  const boundary = 482;
+  const MAX_TRAIL_POINTS = 500;
 
-  // Če obstaja 'solutionPath', nastavimo črto za animacijo
+  // If a solution path is present, set up dash offsets
   if (solutionPath) {
     pathLength = solutionPath.getTotalLength();
     solutionPath.style.strokeDasharray  = pathLength;
@@ -50,83 +59,75 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 2) FUNKCIJA ZA POSTAVITEV iPHONA NA KONEC REŠITVE
+   * 2) MOVE iPHONE IMAGE TO THE END OF SOLUTION
    *************************************************/
   function moveIphoneToSolution() {
     if (!solutionPath) return;
     const solutionPoints = solutionPath.getAttribute("points");
     if (!solutionPoints) return;
 
-    // Zadnja točka rešitve
     const lastPoint = solutionPoints.trim().split(" ").pop();
     const [x, y] = lastPoint.split(",").map(Number);
 
-    // Pridobimo <image> in njene dimenzije
     const iphone = document.querySelector("image");
     const phoneWidth  = parseInt(iphone.getAttribute("width"), 10);
     const phoneHeight = parseInt(iphone.getAttribute("height"), 10);
 
-    // Postavimo iPhone tako, da bo sredina slike na zadnji točki
+    // Center iPhone on that final coordinate
     iphone.setAttribute("x", x - phoneWidth / 2);
     iphone.setAttribute("y", y - phoneHeight / 2);
-
-    console.log(`iPhone moved to (${x}, ${y})`);
   }
 
   /*************************************************
-   * 3) TIMER FUNKCIJE (ZA IZPIS ČASA)
+   * 3) TIMER
    *************************************************/
-  const startTimer = () => {
+  function startTimer() {
     if (isTimerRunning) return;
     isTimerRunning = true;
     startTime = performance.now();
     timerInterval = requestAnimationFrame(updateTimer);
-  };
-
-  const updateTimer = () => {
+  }
+  function updateTimer() {
     if (!isTimerRunning) return;
     const elapsed = Math.floor((performance.now() - startTime) / 1000);
     timerDisplay.textContent = `Time: ${elapsed}s`;
     timerInterval = requestAnimationFrame(updateTimer);
-  };
-
-  const stopTimer = () => {
+  }
+  function stopTimer() {
     isTimerRunning = false;
     cancelAnimationFrame(timerInterval);
-  };
-
-  const resetTimerDisplay = () => {
+  }
+  function resetTimerDisplay() {
     timerDisplay.textContent = "Time: 0s";
-  };
+  }
 
   /*************************************************
-   * 4) FUNKCIJA ZA PRIKAZ/SKRIVANJE REŠITVE
+   * 4) TOGGLE SOLUTION
    *************************************************/
-  const toggleSolution = () => {
+  function toggleSolution() {
     if (!solutionPath) return;
     solutionBtn.disabled = true;
 
     if (!isSolutionVisible) {
-      // Pokažemo pot
+      // Show
       solutionPath.style.strokeDashoffset = "0";
       solutionBtn.innerHTML = '<i class="fas fa-pause-circle"></i> Hide Solution';
-      stopTimer();
+      stopTimer(); // Pause timer if user reveals solution
     } else {
-      // Skrijemo pot
+      // Hide
       solutionPath.style.strokeDashoffset = pathLength;
       solutionBtn.innerHTML = '<i class="fas fa-play-circle"></i> Show Solution';
     }
 
     isSolutionVisible = !isSolutionVisible;
     setTimeout(() => (solutionBtn.disabled = false), 2000);
-  };
+  }
 
   /*************************************************
-   * 5) RESET IRGE
+   * 5) RESET MAZE
    *************************************************/
-  const resetMaze = () => {
+  function resetMaze() {
     if (solutionPath) {
-      // Ponovno skrijemo pot
       solutionPath.style.strokeDashoffset = pathLength;
     }
     isSolutionVisible = false;
@@ -149,30 +150,30 @@ document.addEventListener("DOMContentLoaded", () => {
       resetMessage.classList.add("fade-out");
       setTimeout(() => resetMessage.remove(), 1000);
     }, 2000);
-  };
+  }
 
   /*************************************************
-   * 6) PREKLOP TEME (DARK/LIGHT)
+   * 6) THEME TOGGLE
    *************************************************/
-  const toggleTheme = () => {
+  function toggleTheme() {
     document.body.classList.toggle("dark-theme");
     isDarkTheme = !isDarkTheme;
     themeBtn.innerHTML = isDarkTheme
       ? '<i class="fas fa-sun"></i> Light Theme'
       : '<i class="fas fa-moon"></i> Dark Theme';
-  };
+  }
 
   /*************************************************
-   * 7) SHRANJEVANJE SVG (DOWNLOAD)
+   * 7) DOWNLOAD MAZE (SVG)
    *************************************************/
-  const downloadMaze = () => {
+  function downloadMaze() {
     spinner.classList.remove("hidden");
     downloadBtn.disabled = true;
 
     const serializer = new XMLSerializer();
     let source = serializer.serializeToString(mazeSVG);
 
-    // Dodamo manjkajoče namespace, če slučajno niso
+    // Add missing namespaces if necessary
     if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
       source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
     }
@@ -199,53 +200,47 @@ document.addEventListener("DOMContentLoaded", () => {
       spinner.classList.add("hidden");
       downloadBtn.disabled = false;
     }, 1000);
-  };
+  }
 
   /*************************************************
-   * 8) NAKLJUČNA BARVA REŠITVE
+   * 8) RANDOM SOLUTION COLOR
    *************************************************/
-  const randomColor = () => {
+  function randomColor() {
     if (!solutionPath) return;
     const color = '#' + Math.floor(Math.random() * 16777215).toString(16);
     solutionPath.style.stroke = color;
-  };
+  }
 
   /*************************************************
-   * 9) DETEKCIJA TRKOV - ALI JE MIŠKA NALATELA NA STENO
+   * 9) COLLISION DETECTION
    *************************************************/
   function lineCircleCollides(x1, y1, x2, y2, cx, cy, r) {
     const dx = x2 - x1;
     const dy = y2 - y1;
-    const lineLenSq = dx * dx + dy * dy;
+    const lineLenSq = dx*dx + dy*dy;
 
-    // Če je dolžina 0, gre za točko
+    // If line length == 0 => treat as point
     if (lineLenSq === 0) {
       return Math.hypot(cx - x1, cy - y1) <= r;
     }
 
-    // Projekcija točke na premico
+    // Project circle center onto line
     const t = ((cx - x1) * dx + (cy - y1) * dy) / lineLenSq;
     const closestX = (t < 0) ? x1 : (t > 1) ? x2 : (x1 + t * dx);
     const closestY = (t < 0) ? y1 : (t > 1) ? y2 : (y1 + t * dy);
 
-    // Če je razdalja od najbližje točke do sredine kroga <= r, je trk
     return Math.hypot(closestX - cx, closestY - cy) <= r;
   }
 
   /*************************************************
-   * 10) FUNKCIJE ZA PREMIKANJE IGRALCA
+   * 10) MOVEMENT AND WALL CHECK
    *************************************************/
-  const keysPressed = {};
-  const moveSpeedContinuous = 2;
-  const boundary = 482;
-  const MAX_TRAIL_POINTS = 500;
-
   function canMoveTo(newCx, newCy) {
-    // Ostanemo znotraj "okna" labirinta
+    // clamp inside 0..482
     newCx = Math.max(0, Math.min(boundary, newCx));
     newCy = Math.max(0, Math.min(boundary, newCy));
 
-    // Preverimo, ali se dotaknemo kake stene (line)
+    // Check collisions with all lines
     for (const line of lines) {
       const x1 = parseFloat(line.getAttribute("x1"));
       const y1 = parseFloat(line.getAttribute("y1"));
@@ -253,36 +248,34 @@ document.addEventListener("DOMContentLoaded", () => {
       const y2 = parseFloat(line.getAttribute("y2"));
 
       if (lineCircleCollides(x1, y1, x2, y2, newCx, newCy, circleRadius)) {
-        // Če se zaletimo, vrnemo "blocked = true"
         return {
           blocked: true,
           cx: player.getAttribute("cx"),
-          cy: player.getAttribute("cy")
+          cy: player.getAttribute("cy"),
         };
       }
     }
 
-    // Preverimo, ali smo se dotaknili iPhona, a z marginom
+    // Check if inside iPhone bounding box with some margin
     const iphone = document.querySelector("image");
     const bbox   = iphone.getBBox();
+    const margin = 10; // tune if needed
 
-    // Recimo, da hočemo bounding box 20 pikslov manjši z vseh strani:
-    const margin = 20;
+    // If the entire circle fits inside bounding box => "win"
     if (
-      newCx >= bbox.x + margin &&
-      newCx <= bbox.x + bbox.width  - margin &&
-      newCy >= bbox.y + margin &&
-      newCy <= bbox.y + bbox.height - margin
+      (newCx - circleRadius) >= (bbox.x + margin) &&
+      (newCx + circleRadius) <= (bbox.x + bbox.width  - margin) &&
+      (newCy - circleRadius) >= (bbox.y + margin) &&
+      (newCy + circleRadius) <= (bbox.y + bbox.height - margin)
     ) {
       return { blocked: false, cx: newCx, cy: newCy, win: true };
     }
 
-    // Če ni bila nobena ovira ali dotik iPhona, lahko se normalno premaknemo
     return { blocked: false, cx: newCx, cy: newCy, win: false };
-  } // <-- MANJKAJOČI ZAKLJUČNI OKLEPAJ TU
+  }
 
   /*************************************************
-   * 11) FUNKCIJA ZA SLED (PLAYER TRAIL)
+   * 11) UPDATE PLAYER TRAIL
    *************************************************/
   function updateTrail(x, y) {
     let points = playerTrail.getAttribute("points").split(" ");
@@ -293,7 +286,9 @@ document.addEventListener("DOMContentLoaded", () => {
     playerTrail.setAttribute("points", points.join(" "));
   }
 
-  // Glavna zanka, ki premika igralca glede na pritisnjene tipke (w, a, s, d)
+  /*************************************************
+   * 12) MAIN GAME LOOP: MOVE PLAYER
+   *************************************************/
   function updatePlayerPosition() {
     let cx = parseFloat(player.getAttribute("cx"));
     let cy = parseFloat(player.getAttribute("cy"));
@@ -310,16 +305,22 @@ document.addEventListener("DOMContentLoaded", () => {
         player.setAttribute("cx", result.cx);
         player.setAttribute("cy", result.cy);
         updateTrail(result.cx, result.cy);
-        checkWin(result.cx, result.cy);
+
+        if (result.win) {
+          stopTimer();
+          // Show the final time in modal
+          const finalTime = parseInt(timerDisplay.textContent.replace(/[^\d]/g, ''), 10);
+          finalTimeSpan.textContent = isNaN(finalTime) ? '???' : finalTime;
+
+          showWinModal();
+        }
       }
     }
     requestAnimationFrame(updatePlayerPosition);
   }
   requestAnimationFrame(updatePlayerPosition);
 
-  /*************************************************
-   * 12) TIPKE (WASD) -> PRITISK/IZPUST
-   *************************************************/
+  // Keydown / Keyup
   function handleKeyDown(e) {
     const key = e.key.toLowerCase();
     if (["w", "a", "s", "d"].includes(key)) {
@@ -333,41 +334,10 @@ document.addEventListener("DOMContentLoaded", () => {
       delete keysPressed[key];
     }
   }
-
-  /*************************************************
-   * 13) PREVERIMO ZMAGO
-   *************************************************/
-  function checkWin(cx, cy) {
-    const iphone = document.querySelector("image");
-    const bbox   = iphone.getBBox();
-
-    if (
-      cx >= bbox.x && cx <= bbox.x + bbox.width &&
-      cy >= bbox.y && cy <= bbox.y + bbox.height
-    ) {
-      stopTimer();
-      showWinModal();
-      console.log("Player reached the iPhone!");
-    }
-  }
-
-  function showWinModal() {
-    winModal.classList.add("show");
-    winModal.classList.remove("hidden");
-  }
-
-  /*************************************************
-   * 14) DOGODKI (NA GUMBI, TIPKE ...)
-   *************************************************/
-  closeWinModalBtn.addEventListener("click", () => {
-    winModal.classList.remove("show");
-    setTimeout(() => winModal.classList.add("hidden"), 400);
-    console.log("Win modal closed");
-  });
-
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup",   handleKeyUp);
 
+  // Mobile controls
   moveUpBtn.addEventListener("click", () => {
     keysPressed["w"] = true;
     setTimeout(() => delete keysPressed["w"], 100);
@@ -385,11 +355,85 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => delete keysPressed["d"], 100);
   });
 
+  /*************************************************
+   * 13) SHOW WIN MODAL (WITH CONFETTI)
+   *************************************************/
+  function showWinModal() {
+    const winModal = document.getElementById("win-modal");
+    // Odstranimo .hidden, dodamo .show:
+    winModal.classList.add("show");
+    winModal.classList.remove("hidden");
+  }
+  
+  function hideWinModal() {
+    const winModal = document.getElementById("win-modal");
+    // Animacija: najprej remove .show, čez 400ms pa spet add .hidden:
+    winModal.classList.remove("show");
+    setTimeout(() => {
+      winModal.classList.add("hidden");
+    }, 400);
+  }
+
+  // On “Restart Game” inside Win Modal
+  restartGameBtn.addEventListener("click", () => {
+    // Hide the modal
+    winModal.classList.remove("show");
+    setTimeout(() => winModal.classList.add("hidden"), 400);
+    // Reset
+    resetMaze();
+  });
+
+  // Simple "share" function that copies text to clipboard
+  shareBtn.addEventListener("click", () => {
+    const currentTime = timerDisplay.textContent; 
+    const shareText = `I just found the iPhone in the Spotify Labyrinth! My time was ${currentTime}. Try it yourself!`;
+    navigator.clipboard.writeText(shareText).then(() => {
+      alert("Score copied to clipboard! Share it anywhere you like.");
+    });
+  });
+
+  /*************************************************
+   * 14) CONFETTI LAUNCH
+   *************************************************/
+  function launchConfetti(count = 40) {
+    for (let i = 0; i < count; i++) {
+      createConfetti();
+    }
+  }
+  function createConfetti() {
+    const confetti = document.createElement("div");
+    confetti.classList.add("confetti");
+
+    // Random horizontal position
+    confetti.style.left = Math.random() * 100 + "%";
+    // Random color
+    const hue = Math.floor(Math.random() * 360);
+    confetti.style.backgroundColor = `hsl(${hue}, 90%, 60%)`;
+
+    // Random size
+    const size = Math.random() * 10 + 8; // 8..18 px
+    confetti.style.width  = size + "px";
+    confetti.style.height = size + "px";
+
+    // Random delay
+    const delay = Math.random() * 0.5;
+    confetti.style.animationDelay = delay + "s";
+
+    confettiContainer.appendChild(confetti);
+
+    // Remove after animation
+    confetti.addEventListener("animationend", () => {
+      confetti.remove();
+    });
+  }
+
+  /*************************************************
+   * 15) BUTTONS / EVENTS
+   *************************************************/
   toggleInstructionsBtn.addEventListener("click", () => {
     instructionsModal.classList.add("show");
     instructionsModal.classList.remove("hidden");
   });
-
   closeModalBtn.addEventListener("click", () => {
     instructionsModal.classList.remove("show");
     setTimeout(() => instructionsModal.classList.add("hidden"), 400);
@@ -401,21 +445,12 @@ document.addEventListener("DOMContentLoaded", () => {
   downloadBtn.addEventListener("click", downloadMaze);
   colorBtn.addEventListener("click", randomColor);
 
-  // Ponovno zapiranje win-modal, če slučajno dvakrat
-  closeWinModalBtn.addEventListener("click", () => {
-    winModal.classList.remove("show");
-    setTimeout(() => winModal.classList.add("hidden"), 400);
-  });
-
   /*************************************************
-   * 15) KONČNA INICIALIZACIJA
+   * FINAL SETUP
    *************************************************/
-  // Nastavi začetni položaj igralca in sled
   player.setAttribute("cx", INITIAL_CX);
   player.setAttribute("cy", INITIAL_CY);
   playerTrail.setAttribute("points", `${INITIAL_CX},${INITIAL_CY}`);
 
-  // Takoj postavimo iPhone na konec solution-path
   moveIphoneToSolution();
-
 });
