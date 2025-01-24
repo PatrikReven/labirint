@@ -223,7 +223,58 @@ body.dark-theme button:hover {
 body.dark-theme .instructions {
     color: #cccccc;
 }
-
+.mobile-controls {
+    display: none;
+  }
+  
+  @media (max-width: 768px) {
+    .mobile-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      gap: 10px;
+    }
+  
+    .mobile-controls div {
+      display: flex;
+      gap: 10px;
+    }
+  }
+  
+  
+  .mobile-controls button {
+    background: #1db954;
+    color: #fff;
+    font-size: 1.5em;
+    padding: 10px;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+  }
+  
+  .mobile-controls button:active {
+    transform: scale(0.9);
+  }
+  
+  @media (max-width: 768px) {
+    .mobile-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .mobile-controls div {
+      display: flex;
+      gap: 10px;
+    }
+  }
+  
 /* Responsive Design */
 @media (max-width: 1000px) {
     .maze-wrapper {
