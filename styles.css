@@ -1,128 +1,167 @@
-/* Reset and base */
+/* Reset, osnove */
 html, body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    /* Custom fancy cursor */
-    cursor: url("slike/fancy-cursor.png"), auto; /* Lahko si izbereš kak PNG */
+    cursor: url("slike/fancy-cursor.png"), auto;
   }
-  
   * {
     box-sizing: border-box;
   }
   
-  /* Body z dvema plastema: ozadje.jpg in barvni gradient z overlay blend mode */
+  /* ====== Ozadje z zatemnitvijo + zameglitvijo ====== */
   body {
+    position: relative;
+    font-family: 'Baloo 2', 'Roboto', sans-serif;
+    color: #ffffff;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    /* Nova pozicija: center vertical + center horizontal */
     align-items: center; 
-    justify-content: flex-start; 
-    /* Če želiš popolno sredino, da se labirint res postavi na sredo ekrana:
-       justify-content: center;
-       (spodaj sem vseeno pustil flex-start, ti se odloči) 
-    */
-  
-    /* Dve plasti: 
-      1) ozadje (slika) 
-      2) barvni gradient 
-    */
+    justify-content: flex-start;
     background: 
       url("slike/ozadje.jpg") center/cover no-repeat,
       linear-gradient(135deg, #1db954 0%, #0d6a34 40%, #00FF88 100%);
     background-blend-mode: overlay;
     background-size: cover, 400% 400%;
-  
-    /* Animacija preliva in slike */
     animation:
       gradientBG 10s ease infinite,
       bgImageMove 20s ease-in-out infinite;
-  
-    font-family: 'Baloo 2', 'Roboto', sans-serif;
-    color: #ffffff;
   }
-  
-  /* Subtilna animacija preliva v gradientu */
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    z-index: 0;
+    pointer-events: none;
+  }
   @keyframes gradientBG {
     0%   { background-position: 0% 50%,  0% 50%; }
     50%  { background-position: 100% 50%, 50% 50%; }
     100% { background-position: 0% 50%,  0% 50%; }
   }
-  /* Rahlo premikanje slike ozadje.jpg */
   @keyframes bgImageMove {
     0%   { background-position: 0% 50%,  0% 50%; }
     50%  { background-position: 3% 52%,  100% 50%; }
     100% { background-position: 0% 50%,  0% 50%; }
   }
   
-  /* Container prilagodimo, da je vse videno brez skrolanja (če je možno) */
+  /* Container */
   .container {
+    position: relative;
+    z-index: 10;
     width: 100%;
     max-width: 1200px;
-    /* Odstranimo nepotrebne margine in raje center/higher prikažemo */
     margin: 0 auto;
-    /* da je vsebina navpično centrirana (če justify-content = center) */
+    /* MANJ padding-top => vse višje */
+    padding-top: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    justify-content: flex-start; /* ali center, če želiš popolno sredino */
-    padding-top: 20px; /* malo odmika od vrha */
+    justify-content: flex-start;
   }
   
-  /* Animiran neon glow za glavni naslov */
-  #main-title {
+  /* Glavni naslov "Spotify Labyrinth" z blur text animacijo */
+  .blur-animation {
     font-size: 3em;
+    color: transparent; /* besedilo bo postalo vidno v animaciji */
+    -webkit-text-stroke: 1px #1db954;
     text-align: center;
-    color: #fff;
-    text-shadow:
-      0 0 5px #1db954,
-      0 0 10px #1db954,
-      0 0 20px #1db954,
-      0 0 40px #00FF88;
-    transition: transform 0.3s;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    animation: blurFadeIn 3s forwards;
+    white-space: nowrap;
+    text-shadow: 0 0 10px #1db954;
   }
-  #main-title:hover {
-    transform: scale(1.07);
-    text-shadow:
-      0 0 5px #00ffa2,
-      0 0 20px #00ffa2,
-      0 0 30px #00ffa2,
-      0 0 50px #00ffa2;
+  @keyframes blurFadeIn {
+    0% {
+      filter: blur(12px);
+      opacity: 0;
+    }
+    100% {
+      filter: blur(0px);
+      opacity: 1;
+      color: #ffffff;
+    }
   }
   
-  /* Timer & Best time displays */
+  /* ======== Time Wrapper: Time & Best Time v isti vrstici + neon animacija ======== */
+  .time-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 15px;
+    padding: 6px 20px;
+    border: 2px solid #fff;
+    border-radius: 30px;
+    background: rgba(0,0,0,0.3);
+    box-shadow: 0 0 10px #1db954;
+    animation: neonFlow 3s infinite ease-in-out alternate;
+  }
+  @keyframes neonFlow {
+    0% {
+      box-shadow: 0 0 10px #1db954, 0 0 20px #1db954 inset;
+    }
+    100% {
+      box-shadow: 0 0 20px #1db954, 0 0 30px #1db954 inset;
+    }
+  }
+  /* Timer & Best time base style */
   .timer-display, .best-time {
     font-size: 1.2em;
-    margin: 5px;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.3);
     padding: 8px 16px;
     border-radius: 20px;
     letter-spacing: 1px;
     transition: background 0.3s;
     display: inline-block;
+    position: relative;
   }
   .timer-display:hover, .best-time:hover {
-    background: rgba(0,0,0,0.35);
+    background: rgba(0,0,0,0.5);
+    animation: blink 1.5s infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0.7; }
+  }
+  /* Best Time – dodatna neon animacija (poudarjeno) */
+  .best-time {
+    color: #ff00e1; /* malo rožnate/purpurne barve za večji kontrast */
+    font-size: 1.3em; /* večja kot 'Time' */
+    animation: neonPulse 2s infinite;
+  }
+  @keyframes neonPulse {
+    0% {
+      text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
+    }
+    50% {
+      text-shadow: 0 0 10px #ff66ff, 0 0 20px #ff66ff;
+    }
+    100% {
+      text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
+    }
   }
   
-  /* Buttons styling - dodamo neon hover */
+  /* Gumbi s star-border */
   .buttons {
     display: flex;
-    flex-wrap: wrap;       /* da se prilagaja zaslonu */
+    flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
+    z-index: 11;
   }
-  
-  .buttons button {
+  .star-border {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 8px;
-    min-width: 140px;      /* tukaj si izbereš neko minimalno širino */
-    white-space: nowrap;   /* prepreči prelome teksta */
+    min-width: 140px;
+    white-space: nowrap;
     padding: 12px 24px;
     font-size: 1.1em;
     border: none;
@@ -132,20 +171,47 @@ html, body {
     cursor: pointer;
     transition: background 0.3s, color 0.3s, transform 0.2s, box-shadow 0.3s;
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    overflow: hidden;
   }
-  
-  .buttons button:hover {
+  .star-border::before,
+  .star-border::after {
+    content: "✦";
+    position: absolute;
+    color: #1db954;
+    animation: starBlink 2s linear infinite;
+    font-size: 1.2em;
+    opacity: 0.8;
+  }
+  .star-border::before {
+    top: -10px;
+    left: -10px;
+  }
+  .star-border::after {
+    bottom: -10px;
+    right: -10px;
+  }
+  @keyframes starBlink {
+    0%, 100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 0.8;
+    }
+    50% {
+      transform: scale(1.4) rotate(180deg);
+      opacity: 0.4;
+    }
+  }
+  .star-border:hover {
     background: #1db954;
     color: #ffffff;
     transform: translateY(-3px) scale(1.06);
     box-shadow: 0 8px 12px rgba(0,0,0,0.25);
   }
-  button:disabled {
+  .star-border:disabled {
     background: #cccccc;
     color: #666666;
   }
   
-  /* Maze wrapper: zdaj 700x700, neon border animacija */
+  /* Maze wrapper */
   .maze-wrapper {
     width: 700px;
     height: 700px;
@@ -158,6 +224,7 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
+    perspective: 1000px; /* 3D tilt */
   }
   .glow-border {
     animation: borderGlow 4s ease-in-out infinite;
@@ -167,13 +234,16 @@ html, body {
     50%  { box-shadow: 0 0 20px #11ff88; }
     100% { box-shadow: 0 0 10px #1db954; }
   }
-  
-  /* Maze SVG naj bo skoraj poln wrapperja */
+  .maze-wrapper:hover svg#maze {
+    transform: rotateY(4deg) rotateX(3deg);
+  }
   svg#maze {
     width: 687px;
     height: 687px;
     background: #ffffff;
     border-radius: 5px;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
   }
   
   /* Maze lines */
@@ -181,8 +251,7 @@ html, body {
     stroke: #000000;
     stroke-width: 2;
   }
-  
-  /* Solution path ima animacijo dashoffset */
+  /* Solution path */
   #solution-path {
     stroke-width: 4;
     transition: stroke-dashoffset 2s linear, stroke 0.3s;
@@ -194,8 +263,21 @@ html, body {
     fill: none;
     stroke-linecap: round;
   }
+  /* Player (brez dodatne animacije) */
+  #player {
+  }
+  /* iPhone bounce */
+  image {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: bouncePhone 2s infinite alternate ease-in-out;
+  }
+  @keyframes bouncePhone {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-10px); }
+  }
   
-  /* Spinner (centered loader) */
+  /* Spinner */
   .spinner {
     border: 4px solid rgba(255,255,255,0.3);
     border-top: 4px solid #ffffff;
@@ -217,7 +299,7 @@ html, body {
     100% { transform: translate(-50%,-50%) rotate(360deg); }
   }
   
-  /* Reset message (pojavno ob resetu) */
+  /* Reset message */
   .reset-message {
     position: fixed;
     top: 20px;
@@ -236,8 +318,9 @@ html, body {
   
   /* Mobile controls */
   .mobile-controls {
-    display: none; /* skrij na desktopu, prikaži s @media query, če želiš */
+    display: none;
     margin-bottom: 20px;
+    z-index: 11;
   }
   .mobile-controls button {
     padding: 10px 15px;
@@ -254,8 +337,6 @@ html, body {
     background: #1db954;
     color: #ffffff;
   }
-  
-  /* Prilagoditev z media query, če želimo pokazati mobile controls na majhnih zaslonih */
   @media (max-width: 768px) {
     .mobile-controls {
       display: flex;
@@ -272,46 +353,35 @@ html, body {
     }
   }
   
-  /* Dark theme toggling */
+  /* Dark theme */
   body.dark-theme {
     background-color: #121212;
-    background-blend-mode: normal; /* da je temno ozadje bolj izrazito */
+    background-blend-mode: normal;
     color: #e0e0e0;
     transition: background-color 0.5s, color 0.5s;
   }
-  
   body.dark-theme .maze-wrapper {
     background: #1e1e1e;
-    border-color: #1db954; /* neon zelena rob */
+    border-color: #1db954;
   }
-  
   body.dark-theme svg#maze {
     background: #1e1e1e;
   }
-  
   body.dark-theme .maze-paths line {
-    stroke: #bbbbbb; /* sive stene */
+    stroke: #bbbbbb;
   }
-  
   body.dark-theme #solution-path {
-    stroke: #00ff88; /* neon solution v dark mode */
+    stroke: #00ff88;
   }
-  
-  body.dark-theme .timer-display, 
-  body.dark-theme .best-time {
-    background: rgba(255,255,255,0.1);
-  }
-  
-  body.dark-theme button {
+  body.dark-theme .star-border {
     background: #333333;
     color: #1db954;
   }
-  body.dark-theme button:hover {
+  body.dark-theme .star-border:hover {
     background: #1db954;
     color: #ffffff;
     box-shadow: 0 0 8px #1db954;
   }
-  
   body.dark-theme .modal-content {
     background-color: #333;
     color: #fff;
@@ -349,8 +419,9 @@ html, body {
     text-align: center;
     transform: scale(0.7);
     transition: transform 0.4s ease;
-    max-height: 80vh; 
+    max-height: 80vh;
     overflow-y: auto;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
   }
   .modal-overlay.show .modal-content {
     transform: scale(1);
@@ -370,15 +441,42 @@ html, body {
     background-color: #159f46;
   }
   
-  /* Win modal specifics */
+  /* Win modal specifics – lebdenje */
+  .win-modal-content {
+    animation: floatWin 2s ease-in-out infinite alternate;
+  }
+  @keyframes floatWin {
+    0%   { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-5px) scale(1); }
+  }
   .win-modal-content img {
     max-width: 100%;
     height: auto;
     display: block;
-    margin: 0 auto;
+    margin: 0 auto 10px;
   }
   
-  /* Confetti container */
+  /* Typed effect v navodilih */
+  #typed-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 15px;
+    height: 2.2em;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 4px solid #1db954;
+    width: 0;
+    animation: typing 3s steps(40, end) forwards, blinkCursor 1s infinite step-end alternate;
+  }
+  @keyframes typing {
+    0% { width: 0; }
+    100% { width: 100%; }
+  }
+  @keyframes blinkCursor {
+    50% { border-color: transparent; }
+  }
+  
+  /* Confetti */
   #confetti-container {
     pointer-events: none;
     position: fixed;
