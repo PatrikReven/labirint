@@ -633,7 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Priprava besedila za deljenje
     const currentTime = timerDisplay.textContent;
-    const shareText = `${playerName} just completed the Spotify Labyrinth in ${currentTime}. Try it yourself! patrikreven.github.io/labirint/`;
+    const shareText = `${playerName} just completed the Spotify Labyrinth in ${currentTime}. Try it yourself! https://patrikreven.github.io/labirint/`;
 
     // Poskus kopiranja besedila v odložišče
     navigator.clipboard.writeText(shareText).then(() => {

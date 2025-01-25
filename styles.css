@@ -4,7 +4,10 @@ html, body {
   padding: 0;
   overflow-x: hidden;
   cursor: url("slike/fancy-cursor.png"), auto;
+  user-select: none; /* Prepreči izbiro besedila */
+  -webkit-user-select: none; /* Za Safari */
 }
+
 * {
   box-sizing: border-box;
 }
@@ -28,9 +31,11 @@ body {
     gradientBG 10s ease infinite,
     bgImageMove 20s ease-in-out infinite;
 }
+
 body.video-active {
   background: none; /* Remove image to show video below */
 }
+
 body::after {
   content: "";
   position: fixed;
@@ -41,11 +46,13 @@ body::after {
   z-index: 0;
   pointer-events: none;
 }
+
 @keyframes gradientBG {
   0%   { background-position: 0% 50%,  0% 50%; }
   50%  { background-position: 100% 50%, 50% 50%; }
   100% { background-position: 0% 50%,  0% 50%; }
 }
+
 @keyframes bgImageMove {
   0%   { background-position: 0% 50%,  0% 50%; }
   50%  { background-position: 3% 52%,  100% 50%; }
@@ -78,6 +85,7 @@ body::after {
   white-space: nowrap;
   text-shadow: 0 0 10px #1db954;
 }
+
 @keyframes blurFadeIn {
   0% {
     filter: blur(12px);
@@ -104,6 +112,7 @@ body::after {
   box-shadow: 0 0 10px #1db954;
   animation: neonFlow 3s infinite ease-in-out alternate;
 }
+
 @keyframes neonFlow {
   0% {
     box-shadow: 0 0 10px #1db954, 0 0 20px #1db954 inset;
@@ -112,6 +121,7 @@ body::after {
     box-shadow: 0 0 20px #1db954, 0 0 30px #1db954 inset;
   }
 }
+
 /* Timer & Best time base style */
 .timer-display, .best-time {
   font-size: 1.2em;
@@ -122,20 +132,26 @@ body::after {
   transition: background 0.3s;
   display: inline-block;
   position: relative;
+  user-select: none; /* Prepreči izbiro besedila */
+  -webkit-user-select: none; /* Za Safari */
 }
+
 .timer-display:hover, .best-time:hover {
   background: rgba(0,0,0,0.5);
   animation: blink 1.5s infinite;
 }
+
 @keyframes blink {
   50% { opacity: 0.7; }
 }
+
 /* Best Time – additional neon animation (highlighted) */
 .best-time {
   color: #ff00e1; /* Slightly pink/purple color for higher contrast */
   font-size: 1.3em; /* Larger than 'Time' */
   animation: neonPulse 2s infinite;
 }
+
 @keyframes neonPulse {
   0% {
     text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
@@ -147,6 +163,7 @@ body::after {
     text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
   }
 }
+
 .animated-icon {
   margin-right: 8px;
   color: #1db954;
@@ -173,6 +190,7 @@ body::after {
   margin-bottom: 20px;
   z-index: 11;
 }
+
 .star-border {
   position: relative;
   display: flex;
@@ -190,7 +208,11 @@ body::after {
   transition: background 0.3s, color 0.3s, transform 0.2s, box-shadow 0.3s;
   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
   overflow: hidden;
+  user-select: none; /* Prepreči izbiro besedila */
+  -webkit-user-select: none; /* Za Safari */
+  touch-action: manipulation; /* Prepreči neželene privzete dejavnike */
 }
+
 .star-border::before,
 .star-border::after {
   content: "✦";
@@ -200,14 +222,17 @@ body::after {
   font-size: 1.2em;
   opacity: 0.8;
 }
+
 .star-border::before {
   top: -10px;
   left: -10px;
 }
+
 .star-border::after {
   bottom: -10px;
   right: -10px;
 }
+
 @keyframes starBlink {
   0%, 100% {
     transform: scale(1) rotate(0deg);
@@ -218,12 +243,14 @@ body::after {
     opacity: 0.4;
   }
 }
+
 .star-border:hover {
   background: #1db954;
   color: #ffffff;
   transform: translateY(-3px) scale(1.06);
   box-shadow: 0 8px 12px rgba(0,0,0,0.25);
 }
+
 .star-border:disabled {
   background: #cccccc;
   color: #666666;
@@ -243,18 +270,24 @@ body::after {
   justify-content: center;
   align-items: center;
   perspective: 1000px; /* 3D tilt */
+  user-select: none; /* Prepreči izbiro besedila */
+  -webkit-user-select: none; /* Za Safari */
 }
+
 .glow-border {
   animation: borderGlow 4s ease-in-out infinite;
 }
+
 @keyframes borderGlow {
   0%   { box-shadow: 0 0 10px #1db954; }
   50%  { box-shadow: 0 0 20px #11ff88; }
   100% { box-shadow: 0 0 10px #1db954; }
 }
+
 .maze-wrapper:hover svg#maze {
   transform: rotateY(4deg) rotateX(3deg);
 }
+
 svg#maze {
   width: 687px;
   height: 687px;
@@ -262,6 +295,9 @@ svg#maze {
   border-radius: 5px;
   transition: transform 0.6s;
   transform-style: preserve-3d;
+  user-select: none; /* Prepreči izbiro besedila */
+  -webkit-user-select: none; /* Za Safari */
+  pointer-events: none; /* Omogoči gumbom, da sprejmejo dogodke */
 }
 
 /* Maze lines */
@@ -269,11 +305,15 @@ svg#maze {
   stroke: #000000;
   stroke-width: 2;
 }
+
 /* Solution path */
 #solution-path {
   stroke-width: 4;
   transition: stroke-dashoffset 2s linear, stroke 0.3s;
+  user-select: none; /* Prepreči izbiro besedila */
+  -webkit-user-select: none; /* Za Safari */
 }
+
 /* Player trail */
 #player-trail {
   stroke: #00ff00;
@@ -281,15 +321,22 @@ svg#maze {
   fill: none;
   stroke-linecap: round;
 }
+
 /* Player (no additional animation) */
 #player {
+  user-select: none; /* Prepreči izbiro besedila */
+  -webkit-user-select: none; /* Za Safari */
 }
+
 /* iPhone bounce */
 image {
   transform-box: fill-box;
   transform-origin: center;
   animation: bouncePhone 2s infinite alternate ease-in-out;
+  user-select: none; /* Prepreči izbiro besedila */
+  -webkit-user-select: none; /* Za Safari */
 }
+
 @keyframes bouncePhone {
   0%   { transform: translateY(0); }
   100% { transform: translateY(-10px); }
@@ -309,9 +356,11 @@ image {
   transform: translate(-50%,-50%);
   z-index: 10000;
 }
+
 .hidden {
   display: none;
 }
+
 @keyframes spin {
   0%   { transform: translate(-50%,-50%) rotate(0deg); }
   100% { transform: translate(-50%,-50%) rotate(360deg); }
@@ -330,6 +379,7 @@ image {
   transition: opacity 1s ease;
   z-index: 10001;
 }
+
 .reset-message.fade-out {
   opacity: 0;
 }
@@ -337,13 +387,22 @@ image {
 /* Mobile controls */
 .mobile-controls {
   display: none; /* Ostane skrito na večjih zaslonih */
+  user-select: none; /* Prepreči izbiro besedila */
+  -webkit-user-select: none; /* Za Safari */
 }
 
 /* Posodobljen CSS za gumbke na mobilnih napravah */
 .mobile-controls button {
-  touch-action: none;               
-  -webkit-touch-callout: none;      
-  user-select: none;                
+  touch-action: manipulation; /* Prepreči neželene privzete dejavnike */
+  user-select: none; /* Prepreči izbiro besedila */
+  -webkit-user-select: none; /* Za Safari */
+  -webkit-touch-callout: none; /* Za Safari */
+  user-drag: none; /* Prepreči vlečenje */
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  
   width: 60px;
   height: 60px;
   font-size: 1.5em;
@@ -356,9 +415,9 @@ image {
   transition: transform 0.2s, box-shadow 0.3s, background 0.3s;
   position: relative;
   overflow: hidden;
+  z-index: 1001; /* Višji kot labirint */
 }
 
-/* Dodajanje animacijskih efektov na gumbke */
 .mobile-controls button::before {
   content: "";
   position: absolute;
@@ -395,11 +454,6 @@ image {
 }
 
 /* Dodajanje subtle glow efekta */
-.mobile-controls button {
-  position: relative;
-  z-index: 1;
-}
-
 .mobile-controls button::after {
   content: "";
   position: absolute;
@@ -430,7 +484,7 @@ image {
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 100;
+    z-index: 1001; /* Višji kot labirint */
   }
 
   .mobile-controls button {
@@ -447,21 +501,17 @@ image {
   .mobile-controls > div {
     flex-direction: row;
   }
-}
 
-@media (max-width: 768px) {
-  .mobile-controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+  /* Prilagoditev labirinta za manjše zaslone */
   .maze-wrapper {
-    width: 95vw;
-    height: 95vw;
+    width: 90vw;
+    height: 90vw;
+    margin-bottom: 100px; /* Dodan zamik za mobilne gumbe */
   }
+  
   svg#maze {
-    width: 95vw;
-    height: 95vw;
+    width: 90vw;
+    height: 90vw;
   }
 }
 
@@ -472,19 +522,24 @@ body.dark-theme {
   color: #e0e0e0;
   transition: background-color 0.5s, color 0.5s;
 }
+
 body.dark-theme .maze-wrapper {
   background: #1e1e1e;
   border-color: #1db954;
 }
+
 body.dark-theme svg#maze {
   background: #1e1e1e;
 }
+
 body.dark-theme .maze-paths line {
   stroke: #bbbbbb;
 }
+
 body.dark-theme #solution-path {
   stroke: #00ff88;
 }
+
 body.dark-theme .star-border {
   background: #2d2d2d;   /* Darker */
   color: #1db954;
@@ -497,6 +552,7 @@ body.dark-theme .star-border:hover {
   color: #ffffff;
   box-shadow: 0 0 8px #1db954;
 }
+
 body.dark-theme .modal-content {
   background-color: #333;
   color: #fff;
@@ -516,14 +572,17 @@ body.dark-theme .modal-content {
   pointer-events: none;
   transition: opacity 0.4s ease;
 }
+
 .modal-overlay.show {
   opacity: 1;
   pointer-events: auto;
 }
+
 .modal-overlay.hidden {
   opacity: 0;
   pointer-events: none;
 }
+
 .modal-content {
   background: #fff;
   color: #000;
@@ -538,9 +597,11 @@ body.dark-theme .modal-content {
   overflow-y: auto;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
+
 .modal-overlay.show .modal-content {
   transform: scale(1);
 }
+
 .close-modal-btn {
   margin-top: 20px;
   background-color: #1db954;
@@ -552,6 +613,7 @@ body.dark-theme .modal-content {
   cursor: pointer;
   transition: background 0.3s;
 }
+
 .close-modal-btn:hover {
   background-color: #159f46;
 }
@@ -560,10 +622,12 @@ body.dark-theme .modal-content {
 .win-modal-content {
   animation: floatWin 2s ease-in-out infinite alternate;
 }
+
 @keyframes floatWin {
   0%   { transform: translateY(0) scale(1); }
   100% { transform: translateY(-5px) scale(1); }
 }
+
 .win-modal-content img {
   max-width: 100%;
   height: auto;
@@ -583,10 +647,12 @@ body.dark-theme .modal-content {
   width: 0;
   animation: typing 3s steps(40, end) forwards, blinkCursor 1s infinite step-end alternate;
 }
+
 @keyframes typing {
   0% { width: 0; }
   100% { width: 100%; }
 }
+
 @keyframes blinkCursor {
   50% { border-color: transparent; }
 }
@@ -602,6 +668,7 @@ body.dark-theme .modal-content {
   z-index: 10003;   /* Higher than SweetAlert2 */
   overflow: hidden; /* Let confetti "fall" */
 }
+
 .confetti {
   width: 16px;
   height: 16px;
@@ -609,7 +676,6 @@ body.dark-theme .modal-content {
   position: absolute;
 }
 
-/* Enhanced Path */
 @keyframes epicFall {
   0%   { transform: translateY(-50px) rotate(0deg); }
   50%  { opacity: 1; }
@@ -711,12 +777,13 @@ body.dark-theme .modal-content {
 /* Wave Animation */
 @keyframes waveAnimation {
   0%, 100% {
-      transform: translateY(0);
+    transform: translateY(0);
   }
   50% {
-      transform: translateY(-10px); /* Move upwards in a wave */
+    transform: translateY(-10px); /* Move upwards in a wave */
   }
 }
+
 .wave-text span:nth-child(1) {
   animation-delay: 0s;
 }
@@ -726,6 +793,7 @@ body.dark-theme .modal-content {
 .wave-text span:nth-child(3) {
   animation-delay: 0.2s;
 }
+
 /* ============== Shimmer Background ============== */
 .shimmer-bg::before {
   content: "";
@@ -754,6 +822,7 @@ body.dark-theme .modal-content {
   50%  { box-shadow: 0 0 30px #ffd700, 0 0 60px #ffd700 inset; }
   100% { box-shadow: 0 0 15px #ffea00, 0 0 30px #ffea00 inset; }
 }
+
 /* Lotto-win text (large, blinking) */
 .lotto-win {
   font-size: 1.6em;
@@ -763,9 +832,11 @@ body.dark-theme .modal-content {
   animation: lottoBlink 2s infinite;
   letter-spacing: 1.5px;
 }
+
 .lotto-win span {
   color: #ff00e1;
 }
+
 @keyframes lottoBlink {
   0%, 100% {
     text-shadow: 0 0 5px #ffea00, 0 0 10px #ffea00;
@@ -791,6 +862,7 @@ body.dark-theme .modal-content {
   50%  { opacity: 1; }
   100% { transform: translateY(110vh) rotate(1080deg); opacity: 0; }
 }
+
 /* Video Background */
 .video-bg {
   position: fixed;
