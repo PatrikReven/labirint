@@ -12,19 +12,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeBtn              = document.getElementById("theme-btn");
   const downloadBtn           = document.getElementById("download-btn");
   const colorBtn              = document.getElementById("color-btn");
+  const shareBtn              = document.getElementById("share-btn"); // Za share score
 
-  // Glasba & Video
+  // Glasba in video
   const musicBtn   = document.getElementById("music-btn");
   const bgVideo    = document.getElementById("bg-video");
   const bgMusic    = document.getElementById("bg-music");
   const clickSound = document.getElementById("click-sound");
 
-  // Dodano: element za typed animacijo naslova v navodilih
+  // Elementi za animacijo
   const typedTitle = document.getElementById("typed-title"); 
 
   let isMusicPlaying = false;
+  let gameStarted = false; // Inicializacija zastavice za začetek igre
 
-  // Ostali elementi
+  // Drugi elementi
   const solutionPath      = document.getElementById("solution-path");
   const player            = document.getElementById("player");
   const playerTrail       = document.getElementById("player-trail");
@@ -34,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeModalBtn     = document.getElementById("close-modal-btn");
   const winModal          = document.getElementById("win-modal");
   const restartGameBtn    = document.getElementById("restart-game-btn");
-  const shareBtn          = document.getElementById("share-btn");
+  const shareBtnElement   = document.getElementById("share-btn"); // Pridobitev share gumba
   const mobileControls    = document.querySelector(".mobile-controls");
   const moveUpBtn         = document.getElementById("move-up");
   const moveDownBtn       = document.getElementById("move-down");
@@ -46,8 +48,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const finalTimeSpan     = document.getElementById("final-time");
   const bestTimeInfo      = document.getElementById("best-time-info");
   const bestTimeDisplay   = document.getElementById("best-time-display");
+  const playerNameDisplay = document.getElementById("player-name-display");
 
-  // Timers / flags
+  // ====== Novi elementi za vnos imena ======
+  const nameModal          = document.getElementById("name-modal");
+  const playerNameInput    = document.getElementById("player-name-input");
+  const startGameBtn       = document.getElementById("start-game-btn");
+  let playerName          = "Player"; // Privzeto ime
+
+  // Timers / zastavice
   let timerInterval;
   let startTime         = 0;
   let isTimerRunning    = false;
@@ -55,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isDarkTheme       = false;
   let pathLength        = 0;
 
-  // Movement
+  // Premikanje
   let keysPressed       = {};
   const circleRadius    = parseFloat(player.getAttribute("r")) || 5;
   const moveSpeed       = 2;
@@ -70,36 +79,36 @@ document.addEventListener("DOMContentLoaded", () => {
     bestTimeDisplay.textContent = `Best Time: --`;
   }
 
-  // Nastavitve solution path (dashoffset)
+  // Nastavitve rešitvene poti (dashoffset)
   if (solutionPath) {
     pathLength = solutionPath.getTotalLength();
     solutionPath.style.strokeDasharray = pathLength;
     solutionPath.style.strokeDashoffset= pathLength;
   }
 
-  // Prepreči context menu na dolgi pritisk
+  // Preprečevanje kontekstnega menija ob dolgem pritisku
   document.addEventListener("contextmenu",(e)=>{
     e.preventDefault();
   }, { passive:false });
 
   /*************************************************
-   * MUSIC BTN: fade in/out video
+   * 2) MUSIC BTN: fade in/out video
    *************************************************/
   musicBtn.addEventListener("click", () => {
     playClickSound();
     if (!isMusicPlaying) {
-      // fade in video
+      // Fade in video
       bgVideo.style.display = "block";
       bgVideo.style.opacity = "0";
       bgVideo.style.transition = "opacity 1s ease";
 
-      document.body.classList.add("video-active"); // skrije background sliko
+      document.body.classList.add("video-active"); // Skrij ozadje
 
       requestAnimationFrame(() => {
         bgVideo.style.opacity = "1";
       });
 
-      // Zaženi glasbo
+      // Predvajanje glasbe
       bgMusic.play().then(()=>{
         isMusicPlaying = true;
         musicBtn.innerHTML = '<i class="fas fa-music"></i> Music: ON';
@@ -109,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
     } else {
-      // fade out
+      // Fade out
       bgVideo.style.opacity = "0";
       setTimeout(()=> {
         bgVideo.style.display = "none";
@@ -123,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /*************************************************
-   * 2) Move iPhone to end of solution
+   * 3) MOVE iPhone to end of solution
    *************************************************/
   function moveIphoneToSolution() {
     if (!solutionPath) return;
@@ -146,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 3) TIMER
+   * 4) TIMER
    *************************************************/
   function startTimer() {
     if (isTimerRunning) return;
@@ -169,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 4) TOGGLE SOLUTION
+   * 5) TOGGLE SOLUTION
    *************************************************/
   function toggleSolution() {
     playClickSound();
@@ -177,12 +186,12 @@ document.addEventListener("DOMContentLoaded", () => {
     solutionBtn.disabled = true;
 
     if (!isSolutionVisible) {
-      // prikaži solution
+      // Prikaži rešitev
       solutionPath.style.strokeDashoffset = "0";
       solutionBtn.innerHTML = '<i class="fas fa-pause-circle"></i> Hide Solution';
       stopTimer();
     } else {
-      // skrij solution
+      // Skrij rešitev
       solutionPath.style.strokeDashoffset = pathLength;
       solutionBtn.innerHTML = '<i class="fas fa-play-circle"></i> Show Solution';
     }
@@ -192,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 5) RESET MAZE
+   * 6) RESET MAZE
    *************************************************/
   function resetMaze() {
     playClickSound();
@@ -209,6 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
     player.setAttribute("cy", INITIAL_CY);
     playerTrail.setAttribute("points", `${INITIAL_CX},${INITIAL_CY}`);
     keysPressed = {};
+    gameStarted = false; // Resetiraj zastavico za začetek igre
 
     const resetMessage = document.createElement("div");
     resetMessage.textContent = "Game has been reset!";
@@ -219,10 +229,14 @@ document.addEventListener("DOMContentLoaded", () => {
       resetMessage.classList.add("fade-out");
       setTimeout(()=> resetMessage.remove(),1000);
     },2000);
+    
+    // Odstrani prikaz modalnega okna z imenom, če je prikazano
+    // nameModal.classList.add("show");
+    // nameModal.classList.remove("hidden");
   }
 
   /*************************************************
-   * 6) TOGGLE THEME
+   * 7) TOGGLE THEME
    *************************************************/
   function toggleTheme() {
     playClickSound();
@@ -234,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 7) DOWNLOAD MAZE (SVG)
+   * 8) DOWNLOAD MAZE (SVG)
    *************************************************/
   function downloadMaze() {
     playClickSound();
@@ -272,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 8) RANDOM SOLUTION COLOR
+   * 9) RANDOM SOLUTION COLOR
    *************************************************/
   function randomColor() {
     playClickSound();
@@ -282,7 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 9) COLLISION DETECTION
+   * 10) COLLISION DETECTION
    *************************************************/
   function lineCircleCollides(x1, y1, x2, y2, cx, cy, r){
     const dx = x2 - x1;
@@ -299,7 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 10) CAN MOVE?
+   * 11) CAN MOVE?
    *************************************************/
   function canMoveTo(newCx, newCy){
     newCx = Math.max(0, Math.min(boundary, newCx));
@@ -315,7 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Check for iPhone (zmaga)
+    // Preveri iPhone (pogoj za zmago)
     const iphone = document.querySelector("image");
     if(!iphone) return {blocked:false, cx:newCx, cy:newCy, win:false};
     const bbox = iphone.getBBox();
@@ -334,7 +348,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 11) UPDATE TRAIL
+   * 12) UPDATE TRAIL
    *************************************************/
   function updateTrail(x,y){
     let points = playerTrail.getAttribute("points").split(" ");
@@ -346,9 +360,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 12) GAME LOOP
+   * 13) GAME LOOP
    *************************************************/
   function updatePlayerPosition(){
+    if (!gameStarted) {
+      requestAnimationFrame(updatePlayerPosition);
+      return;
+    }
+    
     let cx = parseFloat(player.getAttribute("cx"));
     let cy = parseFloat(player.getAttribute("cy"));
     let moved = false;
@@ -370,9 +389,9 @@ document.addEventListener("DOMContentLoaded", () => {
           stopTimer();
           const finalTime = parseInt(timerDisplay.textContent.replace(/[^\d]/g,''),10);
 
-          // Prikaz končnega in bestTime
+          // Prikaz končnega in najboljšega časa
           finalTimeSpan.textContent = isNaN(finalTime)? '???' : finalTime;
-          if(!bestTime || (finalTime< parseInt(bestTime))){
+          if(!bestTime || (finalTime < parseInt(bestTime))){
             bestTime= finalTime;
             localStorage.setItem("labyrinthBestTime", bestTime);
             bestTimeDisplay.textContent= `Best Time: ${bestTime}s`;
@@ -388,7 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   requestAnimationFrame(updatePlayerPosition);
 
-  // Keyboard controls
+  // Tipkovni nadzor
   function handleKeyDown(e){
     const key = e.key.toLowerCase();
     if(["w","a","s","d"].includes(key)){
@@ -452,13 +471,26 @@ document.addEventListener("DOMContentLoaded", () => {
   moveRightBtn.addEventListener("pointerleave",(e)=> pointerLeaveHandler(e,"d"));
 
   /*************************************************
-   * 13) WIN MODAL
+   * 14) WIN MODAL
    *************************************************/
   function showWinModal(){
     winModal.classList.add("show");
     winModal.classList.remove("hidden");
-    // Podvojimo confetti do 100
+    // Prikaz imena igralca v win modalu
+    if(playerNameDisplay){
+      playerNameDisplay.textContent = playerName;
+    }
+    // Zagon konfeti
     launchConfetti(100);
+    
+    // Dodaj sparkle efekte
+    addSparkleEffect();
+    
+    // Predvajanje zvoka zmage, če je na voljo
+    const winSound = document.getElementById("win-sound");
+    if(winSound){
+      winSound.play().catch(()=>{});
+    }
   }
   function hideWinModal(){
     winModal.classList.remove("show");
@@ -469,17 +501,9 @@ document.addEventListener("DOMContentLoaded", () => {
     hideWinModal();
     resetMaze();
   });
-  shareBtn.addEventListener("click", ()=>{
-    playClickSound();
-    const currentTime= timerDisplay.textContent;
-    const shareText = `I just found the iPhone in the Spotify Labyrinth! My time was ${currentTime}. Try it yourself!`;
-    navigator.clipboard.writeText(shareText).then(()=>{
-      alert("Score copied to clipboard! Share it anywhere you like.");
-    });
-  });
 
   /*************************************************
-   * 14) CONFETTI
+   * 15) CONFETTI
    *************************************************/
   function launchConfetti(count=100){
     for(let i=0; i<count; i++){
@@ -490,16 +514,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const confetti= document.createElement("div");
     confetti.classList.add("confetti");
     confetti.style.left = Math.random()*100 + "%";
+    confetti.style.top = "-10px";
     const hue = Math.floor(Math.random()*360);
     confetti.style.backgroundColor = `hsl(${hue},90%,60%)`;
     const shapeRound= (Math.random()<0.5);
     confetti.style.borderRadius = shapeRound ? "50%" : "0%";
+    confetti.style.width = `${Math.random()*10 + 5}px`;
+    confetti.style.height = `${Math.random()*10 + 5}px`;
+    confetti.style.animationDuration = `${Math.random()*3 + 2}s`;
     document.getElementById("confetti-container").appendChild(confetti);
     confetti.addEventListener("animationend", ()=> confetti.remove());
   }
 
   /*************************************************
-   * 15) HELPER: PLAY CLICK SOUND
+   * 16) HELPER: PLAY CLICK SOUND
    *************************************************/
   function playClickSound(){
     if(clickSound){
@@ -509,19 +537,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /*************************************************
-   * 16) UI GUMBI (Instructions button, etc.)
+   * 17) UI BUTTONS (Instructions button, etc.)
    *************************************************/
   toggleInstructionsBtn.addEventListener("click", () => {
     playClickSound();
 
-    // Resetiraj typedTitle animacijo
+    // Reset typedTitle animacije
     if (typedTitle) {
       typedTitle.style.width = "0";
       typedTitle.textContent = "INSTRUCTIONS";
 
-      // Če želiš, da se typed animacija vsakič izvede:
+      // Ponastavi animacijo za ponovno predvajanje
       typedTitle.style.animation = "none";
-      typedTitle.offsetWidth; // force reflow
+      typedTitle.offsetWidth; // prisili ponoven layout
       typedTitle.style.animation = 
         "typing 3s steps(40, end) forwards, blinkCursor 1s infinite step-end alternate";
     }
@@ -541,12 +569,106 @@ document.addEventListener("DOMContentLoaded", () => {
   themeBtn.addEventListener("click", toggleTheme);
   downloadBtn.addEventListener("click", downloadMaze);
   colorBtn.addEventListener("click", randomColor);
+  // shareBtnElement.addEventListener("click", shareScore); // Odstranjen stari poslušalec
 
   /*************************************************
-   * 17) INIT
+   * 18) NAME INPUT MODAL FUNCTIONALITY
+   *************************************************/
+  // Prikaz modalnega okna za vnos imena ob nalaganju
+  nameModal.classList.add("show");
+  nameModal.classList.remove("hidden");
+
+  // Gumb za začetek igre
+  startGameBtn.addEventListener("click", () => {
+    const name = playerNameInput.value.trim();
+    if(name === ""){
+      Swal.fire({
+        title: 'Invalid Name',
+        text: 'Please enter your name to start the game.',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+        zIndex: 10002
+      });
+      return;
+    }
+    playerName = name;
+    gameStarted = true; // Igra se začne tukaj
+    nameModal.classList.remove("show");
+    setTimeout(() => nameModal.classList.add("hidden"), 400);
+    playClickSound();
+  });
+
+  /*************************************************
+   * 19) ADDITIONAL EFFECTS: SPARKLE
+   *************************************************/
+  function addSparkleEffect() {
+    const winModalContent = document.querySelector('.win-modal-content');
+    
+    // Ustvari nekaj sparkle efektov
+    for(let i=0; i<10; i++){
+      const sparkle = document.createElement('div');
+      sparkle.classList.add('sparkle');
+      sparkle.style.top = `${Math.random() * 100}%`;
+      sparkle.style.left = `${Math.random() * 100}%`;
+      sparkle.style.animationDelay = `${Math.random() * 2}s`;
+      winModalContent.appendChild(sparkle);
+      
+      // Odstrani sparkle po končani animaciji
+      sparkle.addEventListener('animationiteration', () => {
+        sparkle.remove();
+      });
+    }
+  }
+
+  /*************************************************
+   * 20) SHARE SCORE WITH SWEETALERT2
+   *************************************************/
+  function shareScore(){
+    console.log("shareScore called"); // Za preverjanje
+    playClickSound();
+    
+    // Skrij win modal
+    winModal.classList.remove("show");
+    setTimeout(() => winModal.classList.add("hidden"), 400);
+    
+    // Priprava besedila za deljenje
+    const currentTime = timerDisplay.textContent;
+    const shareText = `${playerName} just completed the Spotify Labyrinth in ${currentTime}. Try it yourself! patrikreven.github.io/labirint/`;
+
+    // Poskus kopiranja besedila v odložišče
+    navigator.clipboard.writeText(shareText).then(() => {
+      // Prikaz SweetAlert2 modala po uspešni kopiranju
+      Swal.fire({
+        title: 'Score Shared!',
+        html: `
+          <p>Your score has been copied to the clipboard.</p>
+          <p><strong>Try it yourself:</strong></p>
+          <a href="https://patrikreven.github.io/labirint/" target="_blank" rel="noopener noreferrer">patrikreven.github.io/labirint/</a>
+        `,
+        icon: 'success',
+        confirmButtonText: 'OK',
+        zIndex: 10002 // Višji kot win modalov (9999)
+      });
+    }).catch(() => {
+      // Prikaz SweetAlert2 modala v primeru napake
+      Swal.fire({
+        title: 'Oops...',
+        text: 'Failed to copy score. Please try manually.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        zIndex: 10002
+      });
+    });
+  }
+
+  /*************************************************
+   * 21) INIT
    *************************************************/
   player.setAttribute("cx", INITIAL_CX);
   player.setAttribute("cy", INITIAL_CY);
   playerTrail.setAttribute("points", `${INITIAL_CX},${INITIAL_CY}`);
   moveIphoneToSolution();
+
+  // Priključi funkcijo shareScore na gumb "Share Score"
+  shareBtnElement.addEventListener("click", shareScore);
 });

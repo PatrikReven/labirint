@@ -16,6 +16,7 @@
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
   />
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
   <!-- Main CSS -->
   <link rel="stylesheet" href="styles.css"/>
 </head>
@@ -33,6 +34,7 @@
   <audio id="click-sound" src="slike/click.mp3" preload="auto"></audio>
   <audio id="bg-music" src="slike/music.mp3" loop></audio>
   <div class="container">
+    
     <!-- Glavni naslov s "blur text" animacijo -->
     <h1 id="main-title" class="blur-animation">Spotify Labyrinth</h1>
 
@@ -547,17 +549,25 @@
               <!-- Loading Spinner -->
               <div id="spinner" class="spinner hidden"></div>
             </div>
-          
+           <!-- Name Input Modal -->
+  <div class="modal-overlay hidden" id="name-modal">
+    <div class="modal-content name-modal-content shimmer-bg">
+      <h2>Enter Your Name</h2>
+      <input type="text" id="player-name-input" placeholder="Your Name" maxlength="20" />
+      <button id="start-game-btn" class="close-modal-btn">
+        <i class="fas fa-play"></i> Start Game
+      </button>
+    </div>
+  </div>
 <!-- Navodila modal (z “wave-text”) -->
 <div class="modal-overlay hidden" id="instructions-modal">
   <div class="modal-content instructions-modal-content shimmer-bg">
     <h2 id="typed-title"></h2>
     <!-- Dodaj wave-text razred -->
     <p class="instructions-text wave-text">
-      Welcome to the Spotify Labyrinth! <br/>
-      - Use <strong>W, A, S, D</strong> to move the green circle.<br/>
-      - If the circle touches any black wall, movement is blocked.<br/>
-      - Show/Hide solution, reset, or change theme as you like.
+      <i class="fas fa-arrow-up animated-icon"></i> Use <strong>W, A, S, D</strong> to move the green circle.<br/>
+      <i class="fas fa-ban animated-icon"></i> If the circle touches any black wall, movement is blocked.<br/>
+      <i class="fas fa-eye animated-icon"></i> Show/Hide solution, reset, or change theme as you like.
     </p>
     <button id="close-modal-btn" class="close-modal-btn">
       Close Instructions
@@ -568,12 +578,12 @@
 <div class="modal-overlay hidden" id="win-modal">
   <!-- Dodaš class flash-win ali shimmer-bg, po želji -->
   <div class="modal-content win-modal-content flash-win">
-    <h2>Congratulations!</h2>
+    <h2>Congratulations, <span id="player-name-display">Player</span>!</h2>
     <img src="slike/win.gif" alt="Win GIF" />
     <p class="lotto-win">YOU WON THE <span>GAME</span>!</p>
     <!-- #9: Dodatno prikažemo "Your time" in "Your best time" -->
-    <p>Your time: <span id="final-time"></span> seconds!</p>
-    <p>Your best time: <span id="best-time-info"></span> seconds!</p>
+    <p>Your time: <span id="final-time">???</span> seconds! <i class="fas fa-clock animated-time-icon"></i></p>
+    <p>Your best time: <span id="best-time-info">???</span> seconds! <i class="fas fa-medal animated-medal-icon"></i></p>    
 
     <button id="restart-game-btn" class="close-modal-btn">
       <i class="fas fa-undo"></i> Restart Game
@@ -587,6 +597,8 @@
   <div id="confetti-container"></div>
 
   <!-- Main JS (ne spremenjeno veliko, original pač) -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="script.js"></script>
+
 </body>
 </html>
