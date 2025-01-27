@@ -77,7 +77,8 @@ Spotify Labirint je interaktivna igra z labirintom, zasnovana za brskalnik. Cilj
 
 ## Posnetki zaslona
 
-*(Dodajte slike ali GIF posnetke zaslona igre, da prikažete funkcionalnosti.)*
+![image](https://github.com/user-attachments/assets/1bb2e737-4532-4be0-97a8-95f0b893be2c)
+
 
 ## Licenca
 
