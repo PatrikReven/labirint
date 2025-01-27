@@ -229,7 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resetMessage.classList.add("fade-out");
       setTimeout(()=> resetMessage.remove(),1000);
     },2000);
-    
+    gameStarted = true;
     // Odstrani prikaz modalnega okna z imenom, če je prikazano
     // nameModal.classList.add("show");
     // nameModal.classList.remove("hidden");
