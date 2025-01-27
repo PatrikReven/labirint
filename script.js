@@ -203,7 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /*************************************************
    * 6) RESET MAZE
    *************************************************/
-  function resetMaze() {
+  async function resetMaze() {
     playClickSound();
 
     if (solutionPath) {
@@ -219,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
     playerTrail.setAttribute("points", `${INITIAL_CX},${INITIAL_CY}`);
     keysPressed = {};
     gameStarted = false; // Resetiraj zastavico za začetek igre
-
+    gameStarted = true;
     const resetMessage = document.createElement("div");
     resetMessage.textContent = "Game has been reset!";
     resetMessage.classList.add("reset-message");
@@ -229,7 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resetMessage.classList.add("fade-out");
       setTimeout(()=> resetMessage.remove(),1000);
     },2000);
-    gameStarted = true;
+
     // Odstrani prikaz modalnega okna z imenom, če je prikazano
     // nameModal.classList.add("show");
     // nameModal.classList.remove("hidden");
